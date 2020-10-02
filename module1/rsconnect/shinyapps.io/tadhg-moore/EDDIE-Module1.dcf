@@ -1,0 +1,13 @@
+name: EDDIE-Module1
+title: EDDIE-Module1
+username:
+account: tadhg-moore
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2930305
+bundleId: 3695435
+url: https://tadhg-moore.shinyapps.io/EDDIE-Module1/
+when: 1601647153.7045
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: ~$instructor_powerpoint_mod1.pptx|~$structor_manual_mod1.docx|getting_started_mod1.pptx|instructor_manual_mod1.docx|instructor_powerpoint_mod1.pptx|r_you_ready_mod1.docx|student_handout_mod1.docx|test.log|old_data - Copy
