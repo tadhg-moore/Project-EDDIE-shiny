@@ -7,6 +7,12 @@ library(httr) # A package necessary for the GRAPLEr to work
 library(RCurl)
 library(jsonlite) # A package necessary for the GRAPLEr to work		
 library(GRAPLEr)
+library(ggplot2)
+library(plotly)
+library(tidyr)
+library(reshape)
+
+# setwd("module1/")
 
 # private function
 find_glm_params	<-	function(nml) {
@@ -36,12 +42,18 @@ nml_file <- "data/glm2.nml"
 nml <- read_nml(nml_file) 
 meteo_file <- "data/met_hourly.csv"
 met <- read.csv(meteo_file)
+met[, 1] <- as.POSIXct(met[, 1], tz = "UTC")
+met_vars <- colnames(met)[-1]
+met_units <- c("W/m2", "W/m2", "\u00B0C", "%", "m/s", "m/day", "m/day")
 baseline <- "data/output.nc"
 
 glm_pars <- find_glm_params(nml)
 glm_pars <- strsplit(glm_pars, ", ")[[1]]
 
-sim_mets <- sim_metrics()[c(3, 5)]
+sim_mets <- c("thermo.depth", "schmidt.stability")
+
+# Info text
+info_text <- read.csv("data/info_text.csv")
 
 # GrapleR
 dirs <- list.files(full.names = TRUE)
@@ -71,61 +83,136 @@ ui <- navbarPage(title = "Module 1: Climate Change Effects on Lake Temperatures"
            sidebarLayout(
              
              sidebarPanel(
+               
+               h1("Project EDDIE"),
+               p(info_text$ProjectEDDIE),
+               p("More can be found at our ", a(href = "https://serc.carleton.edu/eddie/macrosystems/index.html", "website")),
                h1("Module Description"),
                br(),
-               h4("
-Climate change is modifying the thermal structure of lakes around the globe.  In this module, students will learn how to use a lake model to explore the effects of altered weather on lakes, and then develop their own climate scenarios to test hypotheses about how lakes may change in the future.  Once the students have mastered running one climate scenario for their lake, they will learn how to use distributed computing software to scale up and run hundreds of different climate scenarios for their lakes.  The overarching goal of this module is for students to explore new modeling and computing tools while learning fundamental concepts about how climate change will affect lakes.
-")
+               p(info_text$Introduction), # Intro text
+               # p("Materials for this module can be found ", a(href = "https://serc.carleton.edu/eddie/macrosystems/module1", "here")),
+               img(src = "MacroEDDIE Logo.png"),
+               p("Macrosystems EDDIE logo")
              ),
              
              mainPanel(
-               img(src = "lake-ice.jpg"),
+               h1("Workflow for this module - **Beta**"),
+               # h3("Beta - This is a development in process for this module"),
+               p("Materials for this module can be downloaded from the Project EDDIE website", a(href = "https://serc.carleton.edu/eddie/macrosystems/module1", "here")),
+               tags$ol(
+                 tags$li(info_text$mod_out1),
+                 tags$li(info_text$mod_out2),
+                 tags$li(info_text$mod_out3),
+                 tags$li(info_text$mod_out4),
+                 tags$li(info_text$mod_out5),
+                 tags$li(info_text$mod_out6),
+                 tags$li(info_text$mod_out7),
+                 tags$li(info_text$mod_out8),
+                 tags$li(info_text$mod_out9)
+               ),
                br(),
-               img(src = "lake.jpg")
+               # imageOutput("myimage"),
+               wellPanel(
+                 HTML('<center><img src="Slide4.JPG" width="50%" height="50%"></center>')
+               ),
+               br()
+               # HTML('<center><img src="lake.jpg" width="700" alt="Photo of a lake."></center>'),
+               # img(src = "lake.jpg"),
+               # p("Image: Wikimedia commons"),
+               # br(), br(),
+               # HTML('<center><img src="lake-ice.jpg" width="700" alt="Photo of an ice-covered lake."></center>'),
+               # img(src = "lake-ice.jpg"),
+               # p("Image: Wikimedia commons")
              )
            )
            
            ),
   tabPanel(title = "Activity A",
            img(src = "eddie_banner_2018.v5.jpg", height = 100, width = 1544, top = 5),
-    h1("General Lake Model"),
-    actionButton("glmver", "Check GLM version"),
-    # h2("Check which version you are running..."),
-    wellPanel(textOutput("glmv")),
-    h2("View 'glm2.nml' file:"),
-    actionButton("nml_view", "View"),
-    textOutput("nml_out"),
-    selectInput("glm_par", label = "Select GLM parameter", choices = glm_pars,
-                selected = glm_pars[54]),
-    wellPanel(textOutput("glm_par_out")),
-    h3("Plot meteorology data"),
-    actionButton("plot_met_but", "Plot met data"),
-    plotOutput("plot_met"),
+           fluidRow(
+             column(5,
+                    h1("General Lake Model"),
+                    p(info_text$GLM)
+                    ),
+             column(7,
+                    wellPanel(
+                      HTML('<center><img src="Slide10.JPG" width="50%" height="50%"></center>')
+                      ),
+                    )
+             
+           ),
+           hr(),
+    #        actionButton("glmver", "Check GLM version"),
+    # # h2("Check which version you are running..."),
+    # wellPanel(textOutput("glmv")),
+    # h2("View 'glm2.nml' file:"),
+    # actionButton("nml_view", "View"),
+    # textOutput("nml_out"),
+    # selectInput("glm_par", label = "Select GLM parameter", choices = glm_pars,
+    #             selected = glm_pars[54]),
+    # wellPanel(textOutput("glm_par_out")),
+    fluidRow(
+      column(4,
+             h3("Plot meteorology data"),
+             p(info_text$met_plot),
+             selectInput("sel_met", label = "Select meteorological variable for plotting",
+                         choices = met_vars, selected = met_vars[3]),
+             actionButton("plot_met_but", "Plot met data")
+             ),
+      column(8,
+             plotlyOutput("plot_met"),
+             
+             )
+      ), hr(),
+    fluidRow(
+      column(4,
+             h2("Run GLM!"),
+             p("Now, the fun part - we get to run the model and look at output!"),
+             actionButton("run_glm", "Run GLM!"),
+             p("GLM output"),
+             wellPanel(
+               verbatimTextOutput("glm_out") 
+             ),
+             h4("Plot GLM output"),
+             p(info_text$temp_plot),
+             actionButton("plot_glm_but", "Plot GLM output"),
+             p(info_text$save_plot)
+             ),
+      column(8,
+             h4(""),
+             wellPanel(
+               plotlyOutput("plot_glm")
+               )
+             )
+      ), hr(),
     
-    h2("Objective 3"),
-    actionButton("run_glm", "Run GLM!"),
-    verbatimTextOutput("glm_out"),
+    # actionButton("surftemp1", "Save surface temperature"),
     
-    actionButton("surftemp1", "Save surface temperature"),
+
+    fluidRow(
+      column(4,
+             h2("Compare the model to observed data"),
+             p("Examine how the modeled GLM data compares to the observed field data for your lake."),
+             actionButton("mod_comp", "Compare model to obs"),
+             p("Do you notice any differences between the observed (top) and modelled (bottom) water temperatures?")
+             ),
+      column(8,
+             wellPanel(
+               plotlyOutput("plot_comp")
+               )
+             )
+      ), hr(),
     
-    
-    h3("Plot GLM output"),
-    actionButton("plot_glm_but", "Plot GLM output"),
-    plotOutput("plot_glm"),
-    
-    h2("Objective 4"),
-    h3("Compare the model to observed data"),
-    actionButton("mod_comp", "Compare model to obs"),
-    plotOutput("plot_comp"),
-    
-    h3("Compare other output variables"),
-    selectInput("sim_met", label = "Select metric for comparison",
-                choices = sim_mets),
-    plotOutput("plot_sim")
-    
-    
-    
-  ),
+    fluidRow(
+      column(4,
+             h3("Compare other output variables"),
+             selectInput("sim_met", label = "Select metric for comparison",
+                         choices = sim_mets)
+             ),
+      column(8,
+             plotlyOutput("plot_sim"))
+      )
+    ),
   # Activity B ui ----
   tabPanel(title = "Activity B",
            img(src = "eddie_banner_2018.v5.jpg", height = 100, width = 1544, top = 5),
@@ -251,12 +338,7 @@ plotOutput("plot_glm2")
            img(src = "eddie_banner_2018.v5.jpg", height = 100, width = 1544, top = 5),
            h1("GRAPLEr!"),
            br(), br(),
-          h3("The GRAPLEr is an R package that allows you to set up hundreds of GLM
- simulations with varying input meteorological data and run those simulations
- efficiently and quickly using distributed computing. The model 'jobs' are
- submitted via a web service to run	on computers elsewhere, allowing you to
- rapidly set up and run hundreds of simulations, access the output, and analyze
- the data."),
+          h3(), # GRAPLEr
           h3("Check GRAPLer files"),
           actionButton("chk_fils", "Check GRAPLEr files"),
           # h2("Check which version you are running..."),
@@ -322,8 +404,13 @@ server <- function(input, output) {
   })
   
   observeEvent(input$plot_met_but, {
-    output$plot_met <- renderPlot({
-      plot_meteo(nml_file)
+    output$plot_met <- renderPlotly({
+      p <- ggplot(met) +
+        geom_line(aes_string("time", input$sel_met)) +
+        xlab("") +
+        theme_classic() +
+        theme(panel.border = element_rect(fill = NA, colour = "black"))
+      return(ggplotly(p, dynamicTicks = TRUE))
     })
   })
   
@@ -358,36 +445,93 @@ Wall clock runtime 1 seconds : 00:00:01 [hh:mm:ss]"))
   
   
   observeEvent(input$plot_glm_but, {
-    output$plot_glm <- renderPlot({
-      plot_temp(baseline)
+    output$plot_glm <- renderPlotly({
+      p <- plot_var(nc_file = baseline, var_name = "temp") +
+        theme_classic() +
+        theme(panel.border = element_rect(fill = NA, colour = "black"))
+      return(ggplotly(p, dynamicTicks = TRUE))
+      # plot_temp(baseline)
     })
     # output$surf_temp  <- get_var(file=baseline, "temp", reference='surface', z_out=c(1)) 
   })
   
   observeEvent(input$mod_comp, {
-    output$plot_comp <- renderPlot({
-      baseline <- file.path("data", "output.nc")
-      field_file <- file.path("data", 'field_data.csv') 
-      plot_var_compare(nc_file = baseline, field_file, var_name = "temp")
+    output$plot_comp <- renderPlotly({
+      
+      obs <- read.csv("data/field_data.csv")
+      obs[, 1] <- as.POSIXct(obs[, 1], tz = "UTC")
+      pobs <- ggplot(obs, aes(DateTime, Depth)) +
+        geom_tile(aes(fill = Temp))+ 
+        scale_y_reverse(expand = c(0.01, 0.01)) + 
+        scale_x_datetime(expand = c(0.01, 0.01)) +
+        scale_fill_distiller(palette = "RdYlBu", direction = -1, na.value = "grey90") +
+        ylab("Depth (m)") +
+        xlab("Date") +
+        labs(fill = "Temperature (\u00B0C)", title = "Observed temperature") +
+        theme_classic(base_size = 12) + 
+        theme(legend.position = "right", panel.border = element_rect(fill = NA, colour = "black"))
+      
+      mod <- get_var(file = baseline, var_name = "temp", reference = "surface")
+      
+      pmod <- plot_var(nc_file = baseline, var_name = "temp") +
+        labs(fill = "Temperature (\u00B0C)") +
+        theme_classic() +
+        theme(panel.border = element_rect(fill = NA, colour = "black"))
+      
+      return(subplot(list(ggplotly(pobs, dynamicTicks = TRUE),
+                          ggplotly(pmod, dynamicTicks = TRUE)),
+                     nrows = 2, shareX = TRUE))
+      
       })
   })
   
   output$plot_sim <- renderPlot({
+    
+    nml <- read_nml(file.path("data", "glm2.nml"))
+    bathy <- get_hypsography(nml)
     baseline <- file.path("data", "output.nc")
+    mod <- get_var(baseline, "temp", reference = "surface")
+    cnams <- colnames(mod)[-1]
+    cnams <- gsub("temp", "wtr", cnams)
+    
+    
     field_file <- file.path("data", 'field_data.csv') 
-    sim_vals <- compare_to_field(baseline, field_file, metric=input$sim_met,
-                                 as_value=TRUE, na.rm=TRUE)
+    obs <- read.csv(field_file)
+    obs[, 1] <- as.POSIXct(obs[, 1], tz = "UTC")
+    obs <- pivot_wider(obs, id_cols = "DateTime", names_from = "Depth", names_prefix = "wtr_", values_from = "Temp")
+    
+    if(input$sim_met == "thermo.depth") {
+      mod.ts <- ts.thermo.depth(mod, na.rm = TRUE)
+      obs.ts <- ts.thermo.depth(obs, na.rm = TRUE)
+    } else if ( input$sim_met == "schmidt.stability") {
+      mod.ts <- ts.schmidt.stability(mod, bathy = bathy, na.rm = TRUE)
+      obs.ts <- ts.schmidt.stability(obs, bathy = bathy, na.rm = TRUE)
+    }
+    
+    df <- merge(obs.ts, mod.ts, by = 1)
+    colnames(df)[2:3] <- c("Mod", "Obs")
+    
+    mlt <- melt(df, id.vars = 1)
     
     if(input$sim_met == "thermo.depth") {
       ylabs="Thermocline depth in meters"
       ylims=c(0,32)
       type = "l"
     }
-    if(input$sim_met == "water.temperature") {
-      ylabs="Water Temperature in degrees C"
-      ylims=c(0,32)
-      type = "p"
+    if(input$sim_met == "Schmidt Stability") {
+      ylabs="J/m2"
+      ylims=c(0, )
     }
+    p <- ggplot() +
+      geom_line(data = obs.ts, aes(DateTime, value, colour = "Obs")) +
+      geom_line(data = mod.ts, aes(datetime, value, colour = "Model")) +
+      {if(input$sim_met == "thermo.depth")scale_y_reverse()} +
+      ylab(ylabs) +
+      xlab("") +
+      theme_classic() +
+      theme(panel.border = element_rect(fill = NA, colour = "black"))
+    p
+    
     plot(sim_vals$DateTime, sim_vals$obs, type=type, col="blue", ylim=ylims,
          ylab=ylabs, xlab="Date")
     if(input$sim_met == "thermo.depth") {
