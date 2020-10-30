@@ -7,6 +7,8 @@ install.packages("duckdb_r_src.tar.gz", repo = NULL)
 remotes::install_github("cboettig/neonstore")
 # -----------------------------------------------------------------------------------------------------------------
 
+library(neonstore)
+
 site <- "BARC"
 
 
@@ -31,6 +33,9 @@ nidx <- neonstore::neon_index(site = site)
 unique(nidx$table)
 
 # Water quality from Sonde at surface (Conducatnce, DO, pSAT, pH, chla, turb, FDOM)
+wq <- neonstore::neon_table(table = c("waq_instantaneous-basic"),
+                            site = site)
+
 water_quality <- neonstore::neon_read(
   table = c("waq_instantaneous-basic"),
   product = "DP1.20288.001",
