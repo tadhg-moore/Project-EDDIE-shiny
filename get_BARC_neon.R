@@ -9,11 +9,13 @@ remotes::install_github("cboettig/neonstore")
 # success <- lapply(neonstore::neon_index()$path, function(x)Sys.chmod(x, 677))
 # prod <- neonstore::neon_index()$product[unlist(success)]
 # unique(prod)
-
+# dir.create("neonstore")
 Sys.setenv("NEONSTORE_HOME" = "/groups/rqthomas_lab/neonstore4")
+Sys.setenv("NEONSTORE_DB" = "/home/tadhgm/Project-EDDIE-shiny/neonstore/")
 success <- lapply(neonstore::neon_index()$path, Sys.chmod, "644")
 # neonstore::neon_dir()
-# neonstore::neon_store(table="2DWSD_30min")
+neonstore::neon_store(table = "SAAT_30min-expanded")
+# neonstore::neon_store()
 # neonstore::neon_store(table="waq_instantaneous")
 
 site <- c("BARC")
