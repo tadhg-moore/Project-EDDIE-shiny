@@ -101,13 +101,18 @@ yini <- c(
 ui <- function(req) {
   
   tagList( # Added functionality for not losing your settings
-    # shinythemes::themeSelector(),
+    # shinythemes::themeSelector(), # user-defined theme
+    tags$style(type = "text/css", "text-align: justify"),
     navbarPage(title = "Module 5: Introduction to Ecological Forecasting", 
-               position = "fixed-top", 
+               position = "static-top", id = "maintab",
+               # HTML('<p style="text-align:justify">'),
+               # tags$style(type="text/css", "body {padding-top: 65px;}"),
+               # img(src = "project-eddie-banner-2020_green.png", height = 100, 
+               #     width = 1544, top = 5),
                
                # 1. Module Overview ----
-               tabPanel(title = "Module Overview",
-                        tags$style(type="text/css", "body {padding-top: 65px;}"),
+               tabPanel(title = "Module Overview", value = "mtab1",
+                        # tags$style(type="text/css", "body {padding-top: 65px;}"),
                         img(src = "project-eddie-banner-2020_green.png", height = 100, 
                             width = 1544, top = 5),
                         tags$style(HTML("
@@ -117,79 +122,77 @@ ui <- function(req) {
                         #second {
                         border: 2px solid blue;
                         }
-                                        ")),
+                        #txt_j {
+                        text-align: justify;
+                        }
+                        #txt_c {
+                        text-align: center;
+                        }
+                        ")),
                         fluidRow(
                           column(6,
                                  #* Module text ====
                                  h2("Introduction to Ecological Forecasting"),
                                  h3("Summary"),
-                                 p(module_text["intro_eco_forecast", ]),
-                                 p(module_text["this_module", ]),
-                                 p(module_text["goal", ]),
-                                 h3("Ecological Forecasting"),
-                                 p(module_text["eco_forecast1", ]),
+                                 p(id = "txt_j", module_text["intro_eco_forecast", ]),
+                                 p(id = "txt_j", module_text["this_module", ]),
+                                 p(id = "txt_j", module_text["goal", ]),
+                          ), column(5, offset = 1,
+                                    br(), br(), br(),
+                                    img(src = "mod5_viz_v2.png", height = "80%", 
+                                        width = "80%", align = "left")
+                                    ),
+                        ),
+                        hr(),
+                        fluidRow(
+                          column(4,
+                                 # h3("Ecological Forecasting"),
+                                 # p(id = "txt_j", module_text["eco_forecast1", ]),
                                  h3("Module Activities"),
                                  tags$ul(
-                                   tags$li(module_text["act_A", ]),
-                                   tags$li(module_text["act_B", ]),
-                                   tags$li(module_text["act_C", ])
+                                   tags$li(id = "txt_j", module_text["act_A", ]),
+                                   tags$li(id = "txt_j", module_text["act_B", ]),
+                                   tags$li(id = "txt_j", module_text["act_C", ])
                                  ),
                                  # br(),
+                                 
+                                 ),
+                          column(6, offset = 2,
                                  h3("Learning Outcomes"),
                                  tags$line(),
                                  tags$ul(
-                                   tags$li(module_text["LO1", ]),
-                                   tags$li(module_text["LO2", ]),
-                                   tags$li(module_text["LO3", ]),
-                                   tags$li(module_text["LO4", ]),
-                                   tags$li(module_text["LO5", ])
-                                 )
-                                 ),
-                          column(5, offset = 1,
-                                 br(), br(), br(), br(), br(), br(), br(),
-                                 br(), br(), br(), br(), br(), br(), br(),
-                                 img(src = "mod5_viz_v2.png", height = "80%", 
-                                     width = "80%", align = "left")
+                                   tags$li(id = "txt_j", module_text["LO1", ]),
+                                   tags$li(id = "txt_j", module_text["LO2", ]),
+                                   tags$li(id = "txt_j", module_text["LO3", ]),
+                                   tags$li(id = "txt_j", module_text["LO4", ]),
+                                   tags$li(id = "txt_j", module_text["LO5", ])
+                                   )
                                  )
                           ),
+                        hr(),
                         fluidRow(
                           column(6,
-                                 
-                                 ),
-                          column(6,
-                                 )
-                          
-                        ), hr(),
-                        fluidRow(
-                          column(6,
-                                 h3("Project EDDIE"),
-                                 p(module_text["EDDIE", ]),
-                                 p("For more about Project EDDIE, you can visit the website ", a("here", href = "https://serc.carleton.edu/eddie/index.html"), "."),
-                                 h3("Macrosystems Ecology"),
-                                 p(module_text["Macro", ]),
+                                 # h3("Project EDDIE"),
+                                 # p(module_text["EDDIE", ]),
+                                 # p("For more about Project EDDIE, you can visit the website ", a("here", href = "https://serc.carleton.edu/eddie/index.html"), "."),
+                                 h3("Macrosystems EDDIE"),
+                                 p(id = "txt_j", module_text["Macro", ]),
                                  p("For more about Macrosystems EDDIE, you can visit the website ", a("here", href = "https://serc.carleton.edu/eddie/macrosystems/index.html"), "."),
                                  ),
-                          column(6, 
+                          column(5, offset = 1, 
                                  # id = "second", # Add border
                                  br(), br(), 
-                                 img(src = "MacroEDDIE Logo.png", height = "90%", 
-                                     width = "90%", align = "right")
+                                 img(src = "MacroEDDIE Logo.png", height = "70%", 
+                                     width = "70%", align = "center")
                                  )
-                          ),
+                          )
                         ),
                # 2. Introduction ----
-               tabPanel(title = "Introduction",
-                        tags$style(type="text/css", "body {padding-top: 65px;}"),
+               tabPanel(title = "Introduction", value = "mtab2",
+                        # tags$style(type="text/css", "body {padding-top: 65px;}"),
                         img(src = "project-eddie-banner-2020_green.png", height = 100, 
                             width = 1544, top = 5),
                         fluidRow(
-                          column(6,
-                                 br(), br(),
-                                 h2("Our overarching questions today", 
-                                    align = "center"),
-                                 HTML('<center><img src="slide_01.png" width="70%"></center>')
-                                 
-                                 ),
                           column(6,
                                  br(), br(), br(),
                                  h3("In brief:"),
@@ -197,29 +200,38 @@ ui <- function(req) {
                                    tags$li(module_text["what_forecast", ]),
                                    tags$li(module_text["why_forecast", ]),
                                    tags$li(module_text["how_forecast", ])
-                                   )
+                                 )
                                  # img(src = "slide_01.png", height = "50%", 
                                  #     width = "50%", align = "centre")
-                                 )
-                        ),
-                        fluidRow(
-                          column(6,
-                                 h2("What is an Ecological Forecast?"),
-                                 p(module_text["eco_forecast1", ]),
-                                 p("It is a repeated cycle (e.g. iterative) and is described as 'The Forecast Cycle'."),
-                                 img(src = "mod5_viz_v2.png", height = "70%", 
-                                     width = "70%", align = "left")
+                          ),
+                          column(6, align = "center",
+                                 br(), br(),
+                                 h2("Our overarching question today", 
+                                    align = "center"),
+                                 img(src = "What_is_EF.png", height = "70%", 
+                                     width = "70%", align = "center")
+                                 # HTML('<center><img src="slide_01.png" width="70%"></center>')
                                  
-                                 ),
+                                 )
+                        ), hr(),
+                        fluidRow(
                           column(6,
                                  h3("Workflow for this module"),
                                  tags$ol(
-                                   tags$li(module_text["workflow1", ]),
-                                   tags$li(module_text["workflow2", ]),
-                                   tags$li(module_text["workflow3", ]),
-                                   tags$li(module_text["workflow4", ]),
-                                   tags$li(module_text["workflow5", ])
-                                   )
+                                   tags$li(id = "txt_j", module_text["workflow1", ]),
+                                   tags$li(id = "txt_j", module_text["workflow2", ]),
+                                   tags$li(id = "txt_j", module_text["workflow3", ]),
+                                   tags$li(id = "txt_j", module_text["workflow4", ]),
+                                   tags$li(id = "txt_j", module_text["workflow5", ])
+                                 )
+                          ),
+                          column(6, align = "center",
+                                 # h2("What is an Ecological Forecast?"),
+                                 # p(module_text["eco_forecast1", ]),
+                                 # p("It is a repeated cycle (e.g. iterative) and is described as 'The Forecast Cycle'."),
+                                 img(src = "mod5_viz_v2.png", height = "70%",
+                                     width = "70%")
+                                 
                                  )
                         ), hr(),
                         fluidRow(
@@ -228,12 +240,20 @@ ui <- function(req) {
                                  p("This module will introduce key concepts within Ecological forecasting through exploration of ",
                                    a(href = "https://www.neonscience.org/", "NEON (National Ecological Observation Network) data"), ", building a model and then generating a short-term ecological forecast.")
                                  ),
-                          column(6,
+                          column(6, align = "center",
                                  a(
                                    href = "https://www.neonscience.org/",
-                                   img(src = "NSF-NEON-logo.png", title = "NEON - NSF logo",
-                                       aligh = "right")
+                                   img(src = "NSF-NEON-logo.png", title = "NEON - NSF logo")
                                    )
+                                 )
+                        ), hr(),
+                        fluidRow(
+                          column(12, align = "center",
+                                 img(src = "neon_ecoclimatic domains-hires.jpg", 
+                                     title = "NEON - Ecoclimatic domains",
+                                     height = "50%", width = "50%", 
+                                     style = "display: block; margin-left: auto; margin-right: auto;"),
+                                 p("Map of NEON field sites and ecoclimatic domains")
                                  )
                         ),
                         fluidRow(
@@ -250,12 +270,13 @@ ui <- function(req) {
                         
                ),
                
-               # 2. Exploration ----
-               tabPanel(title = "Exploration",
-                        tags$style(type="text/css", "body {padding-top: 65px;}"),
+               # 3. Exploration ----
+               tabPanel(title = "Exploration", value = "mtab3",
+                        # tags$style(type="text/css", "body {padding-top: 65px;}"),
                         img(src = "project-eddie-banner-2020_green.png", height = 100, 
                             width = 1544, top = 5),
                         h3("Examples of Current Ecological Forecasts"),
+                        p("Here are links to some current examples of ecological forecasts."),
                         tags$ul(
                           tags$li(a(href = EF_links$webpage[1], EF_links$Forecast[1]), br(), p(EF_links$About[1])),
                           tags$li(a(href = EF_links$webpage[2], EF_links$Forecast[2]), br(), p(EF_links$About[2])),
@@ -265,13 +286,19 @@ ui <- function(req) {
                         
                ),
                
-               # 3. Get Data ----
-               tabPanel(title = "Get Data",
-                        tags$style(type="text/css", "body {padding-top: 65px;}"),
-                        img(src = "project-eddie-banner-2020_green.png", height = 100, 
+               # 4. Get Data ----
+               tabPanel(title = "Get Data", value = "mtab4",
+                        # tags$style(type="text/css", "body {padding-top: 65px;}"),
+                        img(src = "project-eddie-banner-2020_green.png", height = 100,
                             width = 1544, top = 5),
-                        tabsetPanel(
-                          tabPanel(title = "Objective 1",
+                        fluidRow(
+                          column(12,
+                                 h3("Activity A: Visualize data from a selected NEON site"),
+                                 p("Complete objectives 1-3 to gather the information you will need for your model.")
+                                 )
+                        ),
+                        tabsetPanel(id = "tabseries1",
+                          tabPanel(title = "Objective 1 - Select and view site", value = "obj1",
                                    #* Objective 1 ====
                                    fluidRow(
                                      column(10, offset = 1,
@@ -326,12 +353,12 @@ ui <- function(req) {
                                        ),
                                      )
                                    ),
-                          tabPanel(title = "Objective 2",
+                          tabPanel(title = "Objective 2 - Explore data",  value = "obj2",
                                    #* Objective 2 - Explore the Data ====
                                    fluidRow(
                                      column(10, offset = 1,
                                             wellPanel(
-                                              h3("Objective 2 - Explore the Data"),
+                                              h3("Objective 2 - Inspect the Data"),
                                               p(module_text["obj_02", ]),
                                               p("If there are some variables which you do not understand what they are, visit the ", a(href = "https://data.neonscience.org/home", "NEON Data Portal"), "and click 'Explore Data Products' and look up the different variables and how they are collected."),
                                               p("Answer questions X-Y in the student handout related to data exploration.")
@@ -360,18 +387,18 @@ ui <- function(req) {
                                             )
                                      )
                                    ),
-                          tabPanel(title = "Objective 3",
+                          tabPanel(title = "Objective 3 - Explore variable relationships", value = "obj3",
                                    #* Objective 3 - Explore variable relationships ====
                                    fluidRow(
                                      column(6,
                                             wellPanel(
                                               h3("Objective 3 - Explore variable relationships"),
-                                              p(module_text["obj_03", ])
+                                              p(id = "txt_j", module_text["obj_03", ])
                                             )
                                      ),
-                                     column(6,
+                                     column(6, align = "center",
                                             img(src = "01-hypothesis.png", height = "60%", 
-                                                width = "60%", align = "left")
+                                                width = "60%")
                                      )
                                    ),
                                    #** Explore variable relationships ----
@@ -402,10 +429,7 @@ ui <- function(req) {
                                               # )
                                             )
                                      )
-                                   )
                                    ),
-                          tabPanel(title = "Next Steps",
-                                   #** Recap ====
                                    fluidRow(
                                      column(12,
                                             h3("Next step"),
@@ -413,28 +437,45 @@ ui <- function(req) {
                                             p("Answer questions 10 and 11 in the student handout before moving to the 'Build Model' tab.")
                                             )
                                      )
+                                   ),
+                          br(), hr(),
+                          fluidRow(
+                            column(6, align = "right",
+                                   actionButton("prevBtn1a", "< Previous")
+                                   ),
+                            column(6, align = "left",
+                                   actionButton("nextBtn1a", "Next >")
                                    )
+                            ),
+                          h5("Use buttons to navigate between the objective tabs", align = "center"),
+                          hr(), br()
                           ),
                         ),
                
-               # 4. Build Model ----
-               tabPanel(title = "Build Model",
-                        tags$style(type="text/css", "body {padding-top: 65px;}"),
+               # 5. Build Model ----
+               tabPanel(title = "Build Model", value = "mtab5",
+                        # tags$style(type="text/css", "body {padding-top: 65px;}"),
                         img(src = "project-eddie-banner-2020_green.png", height = 100, 
                             width = 1544, top = 5),
-                        tabsetPanel(
-                          tabPanel(title = "Objective 4",
-                                   #* Objective 4 - Build a simple ecological model ====
+                        fluidRow(
+                          column(12,
+                                 h3("Activity A: Build an ecosystem model for your site"),
+                                 p("Complete objectives 4-5 to learn about the model and to build it for your site.")
+                          )
+                        ),
+                        tabsetPanel(id = "tabseries2",
+                          tabPanel(title = "Objective 4 - Understand model", value = "obj4",
+                                   #* Objective 4 - Understand the ecological model ====
                                    fluidRow(
                                      column(6,
                                             wellPanel(
-                                              h3("Objective 4 - Build a simple ecological model"),
+                                              h3("Objective 4 - Understand the ecological model"),
                                               p(module_text["obj_04", ])
                                             )
                                      ),
-                                     column(6,
+                                     column(6, align = "center",
                                             img(src = "02-build-model.png", height = "60%", 
-                                                width = "60%", align = "left")
+                                                width = "60%")
                                      )
                                    ), br(), br(), hr(),
                                    #* Intro text ====
@@ -501,7 +542,7 @@ ui <- function(req) {
                                             p("Compare your answers in Q 11. Did you sort them correctly?"))
                                      )
                                    ),
-                          tabPanel(title = "Objective 5",
+                          tabPanel(title = "Objective 5 - Build Model", value = "obj5",
                                    #* Objective 5 - Run ecological model ====
                                    fluidRow(
                                      column(10, offset = 1,
@@ -595,36 +636,53 @@ ui <- function(req) {
                                             p("Now we have built our model we are going to use this to forecast short-term primary productivity"))
                                      )
                                    )
+                          ),
+                        br(), hr(),
+                        fluidRow(
+                          column(6, align = "right",
+                                 actionButton("prevBtn2a", "< Previous")
+                          ),
+                          column(6, align = "left",
+                                 actionButton("nextBtn2a", "Next >")
                           )
                         ),
+                        h5("Use buttons to navigate between the objective tabs", align = "center"),
+                        hr(), br()
+                        ),
                
-               # 5. Forecast! ----
-               tabPanel(title = "Forecast",
-                        tags$style(type="text/css", "body {padding-top: 65px;}"),
+               # 6. Forecast! ----
+               tabPanel(title = "Forecast", value = "mtab6",
+                        # tags$style(type="text/css", "body {padding-top: 65px;}"),
                         img(src = "project-eddie-banner-2020_green.png", height = 100, 
                             width = 1544, top = 5),
-                        tabsetPanel(
-                          tabPanel(title = "Objective 6",
+                        fluidRow(
+                          column(12,
+                                 h3("Activity B: Generate a forecast and work through the forecast cycle"),
+                                 p("Complete objectives 6-11 to complete the steps involved with the forecast.")
+                          )
+                        ),
+                        tabsetPanel(id = "tabseries3",
+                          tabPanel(title = "Objective 6 - Quantify uncertainty", value = "obj6",
                                    #* Forecasting text ====
                                    fluidRow(
                                      column(10, offset = 1,
                                             wellPanel(
                                               h3("Objective 6 - Understand uncertainty and explore a weather forecast"),
-                                              p(module_text["obj_06", ])
+                                              p(id = "txt_j", module_text["obj_06", ])
                                             ))
                                    ),
                                    fluidRow(
                                      column(4,
-                                            h3("Forecasting"),
-                                            p(module_text["eco_forecast2", ]),
+                                            h3("Ecological Forecasting"),
+                                            p(id = "txt_j", module_text["eco_forecast2", ]),
                                             br(),
-                                            p("For this exercise we will forecast 30 days into the future using NOAA weather forecast data."),
-                                            p("Before we dive in to this, we will need to understand what we mean we mean when we talk about uncertainty.")
+                                            p(id = "txt_j", "For this exercise we will forecast 30 days into the future using NOAA weather forecast data."),
+                                            p(id = "txt_j", "Before we dive in to this, we will need to understand what we mean we mean when we talk about uncertainty.")
                                      ),
-                                     column(7, offset = 1,
+                                     column(8, align = "center",
                                             br(), br(),
                                             img(src = "03-quantify-uncertainty.png", height = "60%", 
-                                                width = "60%", align = "left")
+                                                width = "60%")
                                             # HTML('<center><img src="What_is_EF.png"></center>'),
                                      )
                                    ),
@@ -633,13 +691,14 @@ ui <- function(req) {
                                    fluidRow(
                                      column(4,
                                             h3("What is Uncertainty?"),
-                                            p(module_text["uncert1", ]),
+                                            p(id = "txt_j", module_text["uncert1", ]),
                                             br(),
                                             p("We will use the model you built on the 'Build Model' tab to create an ecological forecast."),
                                             p("One source of uncertainty is the data used to drive the model. For your forecast, you will be using actual NOAA weather forecast to drive your model. Load and examine this data below.")
                                      ),
-                                     column(5, offset = 1,
-                                            HTML('<center><img src="What_is_uncert.png"></center>'),
+                                     column(8, align = "center",
+                                            img(src = "What_is_uncert.png", height = "60%", 
+                                                width = "60%")
                                      )
                                    ),
                                    hr(),
@@ -647,14 +706,15 @@ ui <- function(req) {
                                      #** Weather Forecast ----
                                      column(3,
                                             h3("Weather Forecast"),
-                                            p(module_text["weather_forecast1", ]),
-                                            p("Weather forecast are produced using ", tags$b("ensemble modelling"), "."),
-                                            p(module_text["ens_mod1", ]),
-                                            p(module_text["weather_forecast2", ])
+                                            p(id = "txt_j", module_text["weather_forecast1", ]),
+                                            p(id = "txt_j", "Weather forecast are produced using ", tags$b("ensemble modelling"), "."),
+                                            p(id = "txt_j", module_text["ens_mod1", ]),
+                                            p(id = "txt_j", module_text["weather_forecast2", ])
                                      ),
                                      column(3,
-                                            p("Here we will load in data from a ", a(href = "https://www.ncdc.noaa.gov/data-access/model-data/model-datasets/global-ensemble-forecast-system-gefs", "NOAA GEFS"), " forecast."),
-                                            p("Inspect the different meteorological outputs. You can adjust the number of members, which is the number of forecasts and also how it is visualized. A line plot shows each individual member while the distribution  shows the median 95th percentile."),
+                                            br(), br(),
+                                            p(id = "txt_j", "Here we will load in data from a ", a(href = "https://www.ncdc.noaa.gov/data-access/model-data/model-datasets/global-ensemble-forecast-system-gefs", "NOAA GEFS"), " forecast."),
+                                            p(id = "txt_j", "Inspect the different meteorological outputs. You can adjust the number of members, which is the number of forecasts and also how it is visualized. A line plot shows each individual member while the distribution  shows the median 95th percentile."),
                                             actionButton('load_fc', "Load Forecast", icon = icon("download")),
                                             # actionButton('plot_fc', "Plot Forecast!", icon = icon("chart-line")),
                                             wellPanel(
@@ -683,29 +743,29 @@ ui <- function(req) {
                                             p("Answer questions 18-20 based on the weather forecast data."))
                                    )
                           ),
-                          tabPanel(title = "Objective 7",
+                          tabPanel(title = "Objective 7 - Forecast", value = "obj7",
                                    #* Objective 7 - Run Forecast ====
                                    #** Driver Uncertainty ====
                                    fluidRow(
                                      column(10, offset = 1,
                                             wellPanel(
                                               h3("Objective 7 - Generate an Ecological Forecast"),
-                                              p(module_text["obj_07", ])
+                                              p(id = "txt_j", module_text["obj_07", ])
                                             )
                                      )
                                    ),
                                    fluidRow(
                                      column(6,
                                             h3("Driver uncertainty"),
-                                            p(module_text["driver_uncert", ]),
+                                            p(id = "txt_j", module_text["driver_uncert", ]),
                                             br(),
-                                            p("A key component of what makes an ecological forecast a 'forecast', is that the model is driven by ", tags$b("forecasted"), "driving variables."),
+                                            p(id = "txt_j", "A key component of what makes an ecological forecast a 'forecast', is that the model is driven by ", tags$b("forecasted"), "driving variables."),
                                             # p("We will now use the weather forecast data loaded above to drive the calibrated model we built on the 'Build Model' tab to forecast chlorophyll-a concentrations into the future.")
                                      ),
-                                     column(6,
+                                     column(6, align = "center",
                                             # h4("Schematic of driver uncertainty")
                                             img(src = "04-generate-forecast.png", height = "60%", 
-                                                width = "60%", align = "left")
+                                                width = "60%")
                                      )
                                    ),
                                    fluidRow(
@@ -725,7 +785,7 @@ ui <- function(req) {
                                                                            selected = plot_types[2])
                                               ),
                                               h3(tags$b("Initial conditions")),
-                                              p("Return to the 'Get Data' tab to find suitable values to input for each of the states. Use the start date of the weather forecast loaded above. If there is no value, choose a value based on the observed range."),
+                                              p(id = "txt_j", "Return to the 'Get Data' tab to find suitable values to input for each of the states. Use the start date of the weather forecast loaded above. If there is no value, choose a value based on the observed range."),
                                               sliderInput("phy_init2", "Phytoplankton", min = 0.1, max = 10, step = 0.1, value = 2),
                                               sliderInput("zoo_init2", "Zooplankton", min = 0.1, max = 5, step = 0.1, value = 0.4),
                                               sliderInput("nut_init2", "Nutrients", min = 0.11, max = 20, step = 0.1, value = 9)
@@ -743,45 +803,45 @@ ui <- function(req) {
                                             )
                                      )
                                    ),
-                          tabPanel(title = "Objective 8",
+                          tabPanel(title = "Objective 8 - Communicate forecast",  value = "obj8",
                                    fluidRow(
                                      column(10, offset = 1,
                                             wellPanel(
                                               h3("Objective 8 - Communicate an Ecological Forecast"),
-                                              p(module_text["obj_08", ])
+                                              p(id = "txt_j", module_text["obj_08", ])
                                             )
                                      )
                                    ),
                                    fluidRow(
                                      column(6,
                                             h3("Communicate Forecast"),
-                                            p(module_text["comm_forecast", ]),
+                                            p(id = "txt_j", module_text["comm_forecast", ]),
                                      ),
-                                     column(6,
+                                     column(6, align = "center",
                                             img(src = "05-communicate-forecast.png",
                                                 height = "70%", 
-                                                width = "70%", align = "center")
+                                                width = "70%")
                                             )
                                      )
                                    ),
-                          tabPanel(title = "Objective 9",
+                          tabPanel(title = "Objective 9 -  Assess forecast",  value = "obj9",
                                    fluidRow(
                                      column(10, offset = 1,
                                             wellPanel(
                                               h3("Objective 9 - Assess an Ecological Forecast"),
-                                              p(module_text["obj_09", ])
+                                              p(id = "txt_j", module_text["obj_09", ])
                                             )
                                      )
                                    ),
                                    fluidRow(
                                      column(6,
                                             h3("One week later..."),
-                                            p("A week has passed since the forecast and you have collected a week of data. Now you are curious as to how well your forecast did. Now we can run an actual comparison to see how the forecast predictions compare to actual observed data"),
+                                            p(id = "txt_j", "A week has passed since the forecast and you have collected a week of data. Now you are curious as to how well your forecast did. Now we can run an actual comparison to see how the forecast predictions compare to actual observed data"),
                                      ),
-                                     column(6,
+                                     column(6, align = "center",
                                             img(src = "06-assess-forecast.png",
                                                 height = "70%", 
-                                                width = "70%", align = "center")
+                                                width = "70%")
                                      )
                                    ),
                                    fluidRow(
@@ -789,8 +849,8 @@ ui <- function(req) {
                                             wellPanel(
                                               br(), br(),
                                               h4("Assess forecast performance"),
-                                              p("Comparing forecast results to actual measurements. This gives us an indication of how accurately our model is forecasting."),
-                                              p("This is an important step as it indicates how well our model represents the system."),
+                                              p(id = "txt_j", "Comparing forecast results to actual measurements. This gives us an indication of how accurately our model is forecasting."),
+                                              p(id = "txt_j", "This is an important step as it indicates how well our model represents the system."),
                                               checkboxInput("add_newobs", label = "Add new observations", FALSE),
                                               conditionalPanel("input.add_newobs",
                                                                actionButton('assess_fc3', label = div("Assess forecast",
@@ -813,13 +873,13 @@ ui <- function(req) {
                                      ),
                                    )
                                    ),
-                          tabPanel(title = "Objective 10",
+                          tabPanel(title = "Objective 10 - Update model",  value = "obj10",
                                    #*
                                    fluidRow(
                                      column(10, offset = 1,
                                             wellPanel(
                                               h3("Objective 10 - Update Model"),
-                                              p(module_text["obj_10", ])
+                                              p(id = "txt_j", module_text["obj_10", ])
                                               )
                                             )
                                      ), 
@@ -827,15 +887,15 @@ ui <- function(req) {
                                    fluidRow(
                                      column(6,
                                             h3("Update Model"),
-                                            p("How did your forecast do compared to the observations?"),
-                                            p("What does this tell you about the model?"),
-                                            p("One of the best thing about ecological forecasting is that it allows us to test our hypothesis (e.g our model) and see if it is representing what is seen within the environment. If there is a bad fit between our model and observed data, this indicates our model is not capturing the processes."),
-                                            p("One of the reasons for this poor fit could be that the parameters that best represent then annual pattern might not work best on shorter time sceles. If you have a poor model fit, adjust the parameters to see if you can improve the forecast."),
+                                            p(id = "txt_j", "How did your forecast do compared to the observations?"),
+                                            p(id = "txt_j", "What does this tell you about the model?"),
+                                            p(id = "txt_j", "One of the best thing about ecological forecasting is that it allows us to test our hypothesis (e.g our model) and see if it is representing what is seen within the environment. If there is a bad fit between our model and observed data, this indicates our model is not capturing the processes."),
+                                            p(id = "txt_j", "One of the reasons for this poor fit could be that the parameters that best represent then annual pattern might not work best on shorter time sceles. If you have a poor model fit, adjust the parameters to see if you can improve the forecast."),
                                      ),
-                                     column(6,
+                                     column(6, align = "center",
                                             img(src = "07-update-model.png",
                                                 height = "70%", 
-                                                width = "70%", align = "center")
+                                                width = "70%")
                                      )
                                    ), br(), hr(),
                                    fluidRow(
@@ -873,22 +933,22 @@ ui <- function(req) {
                                             )
                                      )
                                    ),
-                          tabPanel(title = "Objective 11",
+                          tabPanel(title = "Objective 11 - Next forecast",  value = "obj11",
                                    fluidRow(
                                      column(10, offset = 1,
                                             wellPanel(
-                                              h3("Objective 11 - New Forecast"),
-                                              p(module_text["obj_11", ])
+                                              h3("Objective 11 - Next Forecast"),
+                                              p(id = "txt_j", module_text["obj_11", ])
                                             )
                                      )
                                    ),
                                    #* Objective 11 - New Forecast ====
                                    fluidRow(
                                      column(4,
-                                            h3("New Forecast"),
-                                            p("With an updated model, we can now generate the next forecast driven by a new weather forecast"),
+                                            h3("Next Forecast"),
+                                            p(id = "txt_j", "With an updated model, we can now generate the next forecast driven by a new weather forecast"),
                                             h3(tags$b("Initial conditions")),
-                                            p("Remember, you will need to update the initial conditions based on the latest observed data."),
+                                            p(id = "txt_j", "Remember, you will need to update the initial conditions based on the latest observed data."),
                                             sliderInput("phy_init3", "Phytoplankton", min = 0.1, max = 10, step = 0.1, value = 2),
                                             sliderInput("zoo_init3", "Zooplankton", min = 0.1, max = 5, step = 0.1, value = 0.4),
                                             sliderInput("nut_init3", "Nutrients", min = 0.11, max = 20, step = 0.1, value = 9),
@@ -915,18 +975,30 @@ ui <- function(req) {
                                             h4("New Forecast plot"),
                                             wellPanel(
                                               plotlyOutput("plot_ecof4")
+                                              )
                                             )
-                                     )
+                                     ),
+                                   fluidRow(
+                                     column(12, 
+                                            h3("The Forecast Cycle"),
+                                            p("We have stepped through each of the steps within the forecast cycle"),
+                                     ),
                                    )
-                                   
-                                   )
+                                   ),
+                          br(), hr(),
+                          fluidRow(
+                            column(6, align = "right",
+                                   actionButton("prevBtn3a", "< Previous")
+                            ),
+                            column(6, align = "left",
+                                   actionButton("nextBtn3a", "Next >")
+                            )
+                          ),
+                          h5("Use buttons to navigate between the objective tabs", align = "center"),
+                          hr(), br()
+                          )
                         ),
-                        fluidRow(
-                          column(12, 
-                                 h3("The Forecast Cycle"),
-                                 p("We have stepped through each of the steps within the forecast cycle"),
-                                 ),
-                        ),
+               tabPanel(title = "Activity C", value = "mtab7",
                         fluidRow(
                           column(12, 
                                  h2("Activity C"),
@@ -934,22 +1006,44 @@ ui <- function(req) {
                                  p("Answer Q 27-29")
                           )
                         )
+                 
                ),
-               # 6. Generate Report ----
-               tabPanel(title = "Generate Report",
-                        tags$style(type="text/css", "body {padding-top: 65px;}"),
+               # 7. Generate Report ----
+               tabPanel(title = "Generate Report", value = "mtab8",
+                        # tags$style(type="text/css", "body {padding-top: 65px;}"),
                         img(src = "project-eddie-banner-2020_green.png", height = 100, 
                             width = 1544, top = 5),
                         br(),
                         #* Generate report buttons ====
-                        actionButton("generate", "Generate Report", icon = icon("file"), # This is the only button that shows up when the app is loaded
-                                     # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+                        fluidRow(
+                          column(6,
+                                 h3("Generate Report"),
+                                 p("This will take the answers you have input into the document and generate an OpenDocument Text (ODT) document with your answers which you can download and make further edits before submitting."),
+                                 actionButton("generate", "Generate Report", icon = icon("file"), # This is the only button that shows up when the app is loaded
+                                              # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+                                 ),
+                                 conditionalPanel(condition = "output.reportbuilt", # This button appears after the report has been generated and is ready for download.
+                                                  downloadButton("download", "Download Report",
+                                                                 # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+                                                  ))
+                                 ),
+                          ),
+                        
                         ),
-                        conditionalPanel(condition = "output.reportbuilt", # This button appears after the report has been generated and is ready for download.
-                                         downloadButton("download", "Download Report",
-                                                        # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-                                         ))
-                        ),
+               # Tab navigation buttons ----
+               br(), hr(),
+               fluidRow(
+                 column(6, align = "right",
+                        actionButton("prevBtn1", "< Previous",
+                                     style = "color: #fff; background-color: #6DB08D; border-color: #00664B")
+                 ),
+                 column(6, align = "left",
+                        actionButton("nextBtn1", "Next >",
+                                     style = "color: #fff; background-color: #6DB08D; border-color: #00664B")
+                 )
+               ),
+               h4("Use buttons to navigate between the main tabs", align = "center"),
+               br(), br(),
                tags$script(" $(document).ready(function () {
          $('#inTabset a[data-toggle=\"tab\"]').bind('click', function (e) {
                $(document).load().scrollTop(0);
@@ -1021,7 +1115,6 @@ server <- function(input, output, session) {#
       nc_close(fid)
     })
     vars <- fid$var # Extract variable names for selection
-    nc_close(fid)
     fc_vars <<- names(vars)
     membs <<- length(fils)
   })
@@ -1280,7 +1373,6 @@ server <- function(input, output, session) {#
         nc_close(fid)
       })
       vars <- fid$var # Extract variable names for selection
-      nc_close(fid)
       fc_vars <<- names(vars)
       membs <<- length(fils)
       
@@ -1349,6 +1441,7 @@ server <- function(input, output, session) {#
         return(df2)
       })
       
+      progress$close()
       names(out) <- fc_date
       return(out)
       
@@ -2367,7 +2460,7 @@ server <- function(input, output, session) {#
                    a1 = input$q1)
     
     
-    tmp_file <- paste0(tempfile(), ".doc") #Creating the temp where the .pdf is going to be stored
+    tmp_file <- paste0(tempfile(), ".odt") #Creating the temp where the .pdf is going to be stored
     
     rmarkdown::render("report.Rmd", 
            output_format = "all", 
@@ -2394,7 +2487,7 @@ server <- function(input, output, session) {#
     # This function returns a string which tells the client
     # browser what name to use when saving the file.
     filename = function() {
-      paste0("report_", input$name, ".doc") %>%
+      paste0("report_", input$name, ".odt") %>%
         gsub(" ", "_", .)
     },
     
@@ -2406,7 +2499,121 @@ server <- function(input, output, session) {#
       
     }
   )
+  # Navigating Tabs ----
+  #* Main Tab ====
+  rv1 <- reactiveValues(prev = 0, nxt = 2)
+  observeEvent(input$maintab, {
+    curr_tab <- input$maintab
+    rv1$prev <- readr::parse_number(curr_tab) - 1
+    rv1$nxt <- readr::parse_number(curr_tab) + 1
+  })
   
+  observe({
+    toggleState(id = "prevBtn1", condition = rv1$prev > 0)
+    toggleState(id = "nextBtn1", condition = rv1$nxt < 9)
+    hide(selector = ".page")
+    show(paste0("mtab", rv1$nxt))
+  })
+  
+  observeEvent(input$nextBtn1, {
+    updateTabsetPanel(session, "maintab",
+                      selected = paste0("mtab", rv1$nxt))
+    shinyjs::runjs("window.scrollTo(0, 0)") # scroll to top of page
+  })
+  
+  observeEvent(input$prevBtn1, {
+    updateTabsetPanel(session, "maintab",
+                      selected = paste0("mtab", rv1$prev))
+    shinyjs::runjs("window.scrollTo(0, 0)")
+    
+  })
+  
+  #* Tab 1a ----
+  
+  rv1a <- reactiveValues(page = 1)
+  
+  observe({
+    print(rv1a$page)
+    toggleState(id = "prevBtn1a", condition = rv1a$page > 1)
+    toggleState(id = "nextBtn1a", condition = rv1a$page < 3)
+    hide(selector = ".page")
+    show(paste0("obj", rv1a$page))
+  })
+  
+  observeEvent(input$nextBtn1a, {
+    curr_tab <- input$tabseries1
+    rv1a$page <- readr::parse_number(curr_tab) + 1
+    updateTabsetPanel(session, "tabseries1",
+                      selected = paste0("obj", rv1a$page))
+    shinyjs::runjs("window.scrollTo(0, 50)") # scroll to top of page
+  })
+  
+  observeEvent(input$prevBtn1a, {
+    curr_tab <- input$tabseries1
+    rv1a$page <- readr::parse_number(curr_tab) - 1
+    updateTabsetPanel(session, "tabseries1",
+                      selected = paste0("obj", rv1a$page))
+    shinyjs::runjs("window.scrollTo(0, 50)")
+    
+  })
+  
+  
+  #* Tab 2a ----
+  
+  rv2a <- reactiveValues(page = 4)
+  
+  observe({
+    toggleState(id = "prevBtn2a", condition = rv2a$page > 4)
+    toggleState(id = "nextBtn2a", condition = rv2a$page < 5)
+    hide(selector = ".page")
+    show(paste0("obj", rv2a$page))
+  })
+  
+  observeEvent(input$nextBtn2a, {
+    curr_tab <- input$tabseries2
+    rv2a$page <- readr::parse_number(curr_tab) + 1
+    updateTabsetPanel(session, "tabseries2",
+                      selected = paste0("obj", rv2a$page))
+    shinyjs::runjs("window.scrollTo(0, 50)") # scroll to top of page
+  })
+  
+  observeEvent(input$prevBtn2a, {
+    curr_tab <- input$tabseries2
+    rv2a$page <- readr::parse_number(curr_tab) - 1
+    updateTabsetPanel(session, "tabseries2",
+                      selected = paste0("obj", rv2a$page))
+    shinyjs::runjs("window.scrollTo(0, 50)")
+    
+  })
+  
+  #* Tab 3a ----
+  
+  rv3a <- reactiveValues(page = 6)
+  
+  observe({
+    toggleState(id = "prevBtn3a", condition = rv3a$page > 6)
+    toggleState(id = "nextBtn3a", condition = rv3a$page < 12)
+    hide(selector = ".page")
+    show(paste0("obj", rv3a$page))
+  })
+  
+  observeEvent(input$nextBtn3a, {
+    curr_tab <- input$tabseries3
+    rv3a$page <- readr::parse_number(curr_tab) + 1
+    updateTabsetPanel(session, "tabseries3",
+                      selected = paste0("obj", rv3a$page))
+    shinyjs::runjs("window.scrollTo(0, 50)") # scroll to top of page
+  })
+  
+  observeEvent(input$prevBtn3a, {
+    curr_tab <- input$tabseries3
+    rv3a$page <- readr::parse_number(curr_tab) - 1
+    updateTabsetPanel(session, "tabseries3",
+                      selected = paste0("obj", rv3a$page))
+    shinyjs::runjs("window.scrollTo(0, 50)")
+    
+  })
+
   # Bookmarking shiny app ----
   # observe({
   #   # Trigger this observer every time an input changes
