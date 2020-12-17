@@ -10,6 +10,7 @@ library(plotly)
 library(ncdf4)
 library(reshape)
 library(sortable)
+# remotes::install_github('yonicd/slickR') # removed from CRAN - now only on GitHub
 library(slickR)
 library(tinytex)
 library(rvest)
@@ -31,6 +32,7 @@ source("get_html.R")
 source("create_npz_inputs.R")
 source("NPZ_model.R")
 source("NPZ_model_no_temp.R")
+source("textAreaInput2.R")
 # source("load_fcast.R") # Forecast used in Parameter & IC Uncertainty
 # source("")
 
@@ -64,6 +66,7 @@ l.cols <- RColorBrewer::brewer.pal(8, "Set2")
 
 # colors for theme
 obj_bg <- "#D4ECE1"
+ques_bg <- "#B8E0CD"
 
 # Load text input
 module_text <- read.csv("data/module_text.csv", row.names = 1, header = FALSE)
@@ -117,10 +120,10 @@ ui <- function(req) {
     tags$style(type = "text/css", "text-align: justify"),
     fixedPanel(
       introBox(
-        actionButton("help", label = "Help!"), data.step = 7, data.intro = help_text["help", 1]
+        actionButton("help", label = "", icon = icon("question-circle")), data.step = 7, data.intro = help_text["help", 1]
       ),
       right = 10,
-      top = 70
+      top = 110
       
     ),
     navbarPage(title = "Module 5: Introduction to Ecological Forecasting", 
@@ -159,6 +162,9 @@ ui <- function(req) {
                         #txt_c {
                         text-align: center;
                         }
+                        #txt_l {
+                        text-align: left;
+                        }
                         #wh_link a {
                         color: #FFFFFF
                         }
@@ -177,8 +183,7 @@ ui <- function(req) {
                                  h2("Introduction to Ecological Forecasting"),
                                  h3("Summary"),
                                  p(id = "txt_j", module_text["intro_eco_forecast", ]),
-                                 p(id = "txt_j", module_text["this_module", ]),
-                                 p(id = "txt_j", module_text["goal", ]),
+                                 p(id = "txt_j", module_text["this_module", ])
                           ), column(5, offset = 1,
                                     br(), br(), br(),
                                     img(src = "mod5_viz_v2.png", height = "80%", 
@@ -258,22 +263,24 @@ ui <- function(req) {
                                  p("Input your name and Student ID and this will be added to your final report."),
                                  textInput("name", "Name:"),
                                  textInput("id_number", "ID number:"),
-                                 p("Check the box below to show the questions"),
-                                 checkboxInput("show_q1", "Show questions", value = TRUE),
-                                 box(id = "box1", status = "primary", solidHeader = TRUE, 
-                                     introBox(
-                                       p("Answer questions 1-5 before you begin."),
-                                       textAreaInput(inputId = "q1", label = quest["q1", 1], width = "100%"),
-                                       data.step = 5, data.intro = help_text["questions", 1]
-                                     ),
-                                       textAreaInput(inputId = "q2", label = quest["q2", 1]),
-                                       textAreaInput(inputId = "q3", label = quest["q3", 1]),
-                                       textAreaInput(inputId = "q4", label = quest["q4", 1]),
-                                       textAreaInput(inputId = "q5", label = quest["q5", 1]),
-                                       
-                                     
-                                     ),
+                                 # p("Check the box below to show the questions"),
+                                 # checkboxInput("show_q1", "Show questions", value = TRUE)
+                                 )
+                        ),
+                        fluidRow(
+                          column(8, align = "left", offset = 2, style = paste0("background: ", ques_bg),
+                                 introBox(
+                                   h3(tags$b("Questions")),
+                                   textAreaInput2(inputId = "q1", label = quest["q1", 1] , width = "90%"),
+                                   data.step = 5, data.intro = help_text["questions", 1]
+                                   ),
+                                 textAreaInput2(inputId = "q2", label = quest["q2", 1], width = "90%"),
+                                 textAreaInput2(inputId = "q3", label = quest["q3", 1], width = "90%"),
+                                 textAreaInput2(inputId = "q4", label = quest["q4", 1], width = "90%"),
+                                 textAreaInput2(inputId = "q5", label = quest["q5", 1], width = "90%"),
+                                 br()
                                  ),
+                          hr()
                         ),
                         fluidRow(
                           column(6,
@@ -314,24 +321,8 @@ ui <- function(req) {
                                    img(src = "NSF-NEON-logo.png", title = "NEON - NSF logo")
                                    )
                                  )
-                        ), hr(),
-                        fluidRow(
-                          column(12, align = "center",
-                                 img(src = "neon_ecoclimatic domains-hires.jpg", 
-                                     title = "NEON - Ecoclimatic domains",
-                                     height = "50%", width = "50%", 
-                                     style = "display: block; margin-left: auto; margin-right: auto;"),
-                                 p("Map of NEON field sites and ecoclimatic domains")
-                                 )
-                        )
-                        #* Intro text ====
-                       # Embed questions
-                        # h2(tags$b("Think about it!")),
-                        # textInput(inputId = "q1", label = "Q1. What is an ecological forecast? What is uncertainty?",
-                        #           placeholder = "An ecological forecast is...", width = "80%")
-                        
-               ),
-               
+                          )
+                        ),
                # 3. Exploration ----
                tabPanel(title = "Exploration", value = "mtab3",
                         # tags$style(type="text/css", "body {padding-top: 65px;}"),
@@ -346,21 +337,25 @@ ui <- function(req) {
                           column(5, offset = 1,
                                  tags$ul(
                                    tags$li(id = "txt_j", a(href = EF_links$webpage[1], EF_links$Forecast[1]), br(), p(EF_links$About[1])),
-                                   img(src = "fc_examples/npn.png", height = "50%",
-                                       width = "50%"), br(), hr(),
+                                   a(img(src = "fc_examples/npn.png", height = "50%",
+                                       width = "50%"), href = EF_links$webpage[1]), br(), hr(),
                                    tags$li(id = "txt_j", a(href = EF_links$webpage[2], EF_links$Forecast[2]), br(), p(EF_links$About[2])),
-                                   img(src = "fc_examples/flare.png", height = "50%",
-                                       width = "50%")
+                                   a(img(src = "fc_examples/flare.png", height = "50%",
+                                       width = "50%"), href = EF_links$webpage[2]),
+                                   tags$li(id = "txt_j", a(href = EF_links$webpage[3], EF_links$Forecast[3]), br(), p(EF_links$About[3])),
+                                   a(img(src = "fc_examples/ecocast.png", height = "50%",
+                                       width = "50%"), href = EF_links$webpage[3])
                                    )
                                  ),
                           column(5, 
                                  tags$ul(
-                                   tags$li(id = "txt_j", a(href = EF_links$webpage[3], EF_links$Forecast[3]), br(), p(EF_links$About[3])),
-                                   img(src = "fc_examples/ecocast.png", height = "50%",
-                                       width = "50%"), br(), hr(),
+                                   br(), br(), br(), br(),
                                    tags$li(id = "txt_j", a(href = EF_links$webpage[4], EF_links$Forecast[4]), br(), p(EF_links$About[4])),
-                                   img(src = "fc_examples/sturgeon.png", height = "50%",
-                                       width = "50%")
+                                   a(img(src = "fc_examples/sturgeon.png", height = "50%",
+                                       width = "50%"), href = EF_links$webpage[4]), br(), br(), hr(),
+                                   tags$li(id = "txt_j", a(href = EF_links$webpage[5], EF_links$Forecast[5]), br(), p(EF_links$About[5])),
+                                   a(img(src = "fc_examples/grasslands.png", height = "50%",
+                                       width = "50%"), href = EF_links$webpage[5])
                                    )
                                  )
                           )
@@ -417,7 +412,7 @@ border-color: #FFF;
                                             h2("Site Description"),
                                             p("Select a site in the table to highlight on the map"),
                                             DT::DTOutput("table01"),
-                                            p("Click below to see the latest image from the webcam on site (this may take 10-30s)."),
+                                            p("Click below to see the latest image from the webcam on site (this may take 10-30 seconds)."),
                                             actionButton("view_webcam", label = "View live feed")
                                             
                                             
@@ -453,7 +448,23 @@ border-color: #FFF;
                                        p("Follow the link below to find the information to answer Q6."),
                                        htmlOutput("site_link")
                                        ),
+                                     ),
+                                   fluidRow(
+                                     column(5, offset = 1, align = "left", style = paste0("background: ", ques_bg),
+                                                h4("Q. 6 Fill out information about the selected NEON site:"),
+                                                textInput(inputId = "q6a", label = quest["q6a", 1] , width = "90%"),
+                                                textInput(inputId = "q6b", label = quest["q6b", 1], width = "90%"),
+                                                textInput(inputId = "q6c", label = quest["q6c", 1], width = "90%"),
+                                            br()
+                                            ),
+                                     column(5,  align = "left", style = paste0("background: ", ques_bg),
+                                            h4("Test", style = paste0("color: ", ques_bg)),
+                                            textInput(inputId = "q6d", label = quest["q6d", 1] , width = "90%"),
+                                            textInput(inputId = "q6e", label = quest["q6e", 1], width = "90%"),
+                                            textInput(inputId = "q6f", label = quest["q6f", 1], width = "90%"),
+                                            br()
                                      )
+                                   )
                                    ),
                           tabPanel(title = "Objective 2 - Explore data",  value = "obj2",
                                    #* Objective 2 - Explore the Data ====
@@ -1217,7 +1228,7 @@ server <- function(input, output, session) {#
   })
   
   output$table01 <- DT::renderDT(
-    neon_sites_df[, c(1:3, 5:6)], selection = "single", options = list(stateSave = TRUE)
+    neon_sites_df[, c(1:2)], selection = "single", options = list(stateSave = TRUE)
   )
   
   # to keep track of previously selected row
@@ -1236,8 +1247,6 @@ server <- function(input, output, session) {#
     colnames(coords) <- c("long", "lat")
     row_selected = cbind(row_selected, coords)
     proxy <- leafletProxy('neonmap')
-    print(row_selected)
-    print(ls())
     proxy %>%
       addAwesomeMarkers(layerId = as.character(row_selected$uid),
                         lng=row_selected$long, 
@@ -1297,17 +1306,13 @@ server <- function(input, output, session) {#
     idx <- which(neon_sites_df$siteID == siteID)
     # output$site_name <- neon_sites$description[idx]
     url <- neon_sites_df$pheno_url[idx]
-    # siteID(neon_sites_df$siteID[idx])
-    # siteID <<- neon_sites_df$siteID[idx]
-    # if image exist don't redownload
     img_file <- download_phenocam(url)
-    print(img_file)
     progress$set(value = 1)
     output$pheno <- renderImage({
       list(src = img_file,
            alt = "Image failed to render",
-           height = 420, 
-           width = 567)
+           height = 320, 
+           width = 350)
     }, deleteFile = FALSE)
     # show("main_content")
   })
@@ -1342,7 +1347,6 @@ server <- function(input, output, session) {#
     
     # p <- input$neonmap_marker_click  
     idx <- input$table01_rows_selected
-    print(neon_sites_df$location[idx])
     return(neon_sites_df$location[idx])
   })
   output$site_name2 <- eventReactive(input$neonmap_marker_click, { 
@@ -1361,7 +1365,6 @@ server <- function(input, output, session) {#
     read_var <- neon_vars$id[which(neon_vars$Short_name == input$view_var)][1]
     units <- neon_vars$units[which(neon_vars$Short_name == input$view_var)][1]
     file <- file.path("data", paste0(siteID, "_", read_var, "_", units, ".csv"))
-    print(file)
     df <- read.csv(file)
     # df <- read.csv("data/SITE_data.csv")
     df[, 1] <- as.POSIXct(df[, 1], tz = "UTC")
@@ -1397,7 +1400,6 @@ server <- function(input, output, session) {#
   
   # Get NOAA forecast ----
   output$sel_obs_vars <- renderUI({
-    # print(fc_vars)
     selectInput("fc_var", "Choose variable", choices = fc_vars)
   })
   
@@ -1752,7 +1754,6 @@ server <- function(input, output, session) {#
   })
   
   observeEvent(input$ans_btn, {
-    print(length(input$rank_list_3))
     if(length(input$rank_list_2) == 0) {
       res <- "Drag answers into state variables!"
     } else if(all(input$rank_list_2 %in% state_vars)) {
@@ -1878,11 +1879,6 @@ server <- function(input, output, session) {#
     validate(
       need(!is.null(input$table01_rows_selected), "Please select a site on the 'Get Data' tab!")
     )
-
-    # siteID <- eventReactive(input$table01_rows_selected, {
-    #   neon_sites$siteID[input$table01_rows_selected]
-    # })
-    print(siteID)
     
     # Load Chl-a observations
     read_var <- neon_vars$id[which(neon_vars$Short_name == "Chlorophyll-a")]
@@ -1964,7 +1960,6 @@ server <- function(input, output, session) {#
       fpath <- file.path("data", "NOAAGEFS_1hr", siteID)
       fold <- list.files(fpath)
       fc_date <- as.character(as.Date(fold[1]))
-      print(fc_date)
       fc_idx <- which(names(fc_data()) == fc_date)
       
       npz_inp_list <- lapply(1:30, function(x) {
@@ -2427,7 +2422,6 @@ server <- function(input, output, session) {#
       fpath <- file.path("data", "NOAAGEFS_1hr", siteID)
       fold <- list.files(fpath)
       fc_date <- as.character(as.Date(fold[1]) + 7)
-      print(fc_date)
       fc_idx <- which(names(fc_data()) == fc_date)
       npz_inp_list <- lapply(1:30, function(x) {
         df <- fc_data()[[fc_idx]]
@@ -2542,8 +2536,6 @@ server <- function(input, output, session) {#
     # Make old forecast 
     sub <- driv_fc() #[as.numeric(driv_fc()$L1) <= input$members2, ]
     
-    print(head(sub))
-    
     df3 <- plyr::ddply(sub, "time", function(x) {
       quantile(x$value, c(0.025, 0.05, 0.125, 0.5, 0.875, 0.95, 0.975))
     })
@@ -2561,7 +2553,6 @@ server <- function(input, output, session) {#
     
     sub <- new_fc()[as.numeric(new_fc()$L1) <= input$members3, ]
 
-    print(head(sub))
     if(input$type3 == "distribution") {
       
       df3 <- plyr::ddply(sub, "time", function(x) {
@@ -2703,7 +2694,6 @@ server <- function(input, output, session) {#
   rv1a <- reactiveValues(page = 1)
   
   observe({
-    print(rv1a$page)
     toggleState(id = "prevBtn1a", condition = rv1a$page > 1)
     toggleState(id = "nextBtn1a", condition = rv1a$page < 5)
     hide(selector = ".page")
