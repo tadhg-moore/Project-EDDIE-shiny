@@ -21,6 +21,7 @@ library(rintrojs)
 library(stringr)
 library(tidyr)
 library(RColorBrewer)
+library(ggpubr)
 
 # Options for Spinner
 options(spinner.color = "#0275D8", spinner.color.background = "#ffffff", spinner.size = 2)
@@ -340,16 +341,48 @@ ui <- function(req) {
                           )
                         ), hr(),
                         fluidRow(
-                          column(4,
-                                 h3(tags$b("Student Handout")),
+                          column(4, offset = 1,
+                                 h3("Student Handout"),
                                  p("You can either fill out the embedded questions within the Shiny interface or download the student handout and answer the questions there.")
                                  ),
-                          column(4,
+                          column(4, offset = 1, 
+                                 br(), # br(), br(),
                                  p("Uncheck the box below to hide the questions throughout the Shiny app."),
                                  checkboxInput("show_q1", "Show questions", value = TRUE),
                                  p("Download Student Handout"),
                                  downloadButton(outputId = "stud_dl", label = "Download"),
                                  br()
+                          )
+                        ),
+                        #* Generate report buttons ====
+                        fluidRow(
+                          column(4, offset = 1,
+                                 introBox(
+                                   h3("Generate Report"),
+                                   p("This will take the answers you have input into this app and generate a Microsoft Word document (.docx) document with your answers which you can download and make further edits before submitting."),
+                                   actionButton("generate", "Generate Report (.docx)", icon = icon("file"), # This is the only button that shows up when the app is loaded
+                                                # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+                                   ),
+                                   data.step = 6, data.intro = help_text["finish", 1]
+                                 ),
+                                 
+                                 conditionalPanel(condition = "output.reportbuilt", # This button appears after the report has been generated and is ready for download.
+                                                  downloadButton("download", "Download Report",
+                                                                 # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+                                                  )), br(),
+                                 p("Questions still to be completed:"),
+                                 # verbatimTextOutput("check_list"),
+                                 wellPanel(
+                                   htmlOutput("check_list")
+                                 )
+                                 
+                          ),
+                          column(4,offset = 1,
+                                 h3("Save your progress"),
+                                 p("If you think that you might not finish all the activities you can save your process as you go. Click the 'Bookmark...' button below and save the web address either as bookmark or in a text file."),
+                                 p("Then to reload the app input the web address into your internet browser."),
+                                 p("If you are running this locally through RStudio on your own computer, you will need to have the app running before reloading your bookmarked web address. You can save this at any time throughout your progress"),
+                                 bookmarkButton(id = "bookmark1")
                           )
                         ),
                         fluidRow(
@@ -466,8 +499,9 @@ ui <- function(req) {
                                               textAreaInput2(inputId = "q4a", label = quest["q4a", 1], width = "90%"),
                                               textAreaInput2(inputId = "q4b", label = quest["q4b", 1], width = "90%"),
                                               textAreaInput2(inputId = "q4c", label = quest["q4c", 1], width = "90%"),
-                                              textAreaInput2(inputId = "q4d", label = quest["q4d", 1], width = "90%")
-                                              )
+                                              textAreaInput2(inputId = "q4d", label = quest["q4d", 1], width = "90%"),
+                                              textAreaInput2(inputId = "q4e", label = quest["q4e", 1], width = "90%")
+                                       )
                                        ),
                                      ),
                                  ),
@@ -535,7 +569,7 @@ border-color: #FFF;
                                                              ),
                                             DTOutput("table01"),
                                             p("Click below to see the latest image from the webcam on site (this may take 10-30 seconds)."),
-                                            actionButton("view_webcam", label = "View live feed")
+                                            actionButton("view_webcam", label = "View live feed", icon = icon("eye"))
                                             
                                             
                                             # p("Blah blah blah"),
@@ -605,8 +639,7 @@ border-color: #FFF;
                                             wellPanel(style = paste0("background: ", obj_bg),
                                               h3("Objective 2 - Inspect the Data"),
                                               p(module_text["obj_02", ]),
-                                              p("If there are some variables which you do not understand what they are, visit the ", a(href = "https://data.neonscience.org/home", "NEON Data Portal", target = "_blank"), "and click 'Explore Data Products' and look up the different variables and how they are collected."),
-                                              p("Answer questions X-Y in the student handout related to data exploration.")
+                                              p("If there are some variables which you do not understand what they are, visit the ", a(href = "https://data.neonscience.org/home", "NEON Data Portal", target = "_blank"), "and click 'Explore Data Products' and look up the different variables and how they are collected.")
                                             ),
                                             useShinyjs(),  # Set up shinyjs
                                             selectizeInput("view_var", "Select variable",
@@ -730,8 +763,7 @@ border-color: #FFF;
                                      hr(),
                                      column(12,
                                             h3("Next step"),
-                                            p("Next we will use this data and the identified related variables to help build our ecological model."),
-                                            p("Answer questions 10 and 11 in the student handout before moving to the 'Get Data & Build Model' tab.")
+                                            p("Next we will use this data and the identified related variables to help build our ecological model.")
                                             )
                                      )
                                    ),
@@ -878,7 +910,9 @@ border-color: #FFF;
                                             h3("Primary Productivity"),
                                             wellPanel(
                                               plotlyOutput("mod_ann_plot")
-                                            )
+                                            ),
+                                            br(),
+                                            actionButton("save_mod_run", "Save plot", icon = icon("save"))
                                      )
                                    ),
                                    fluidRow(
@@ -1001,7 +1035,7 @@ border-color: #FFF;
                                               style = "width: 100px")
                           )
                         ),
-                        h5("Use buttons to navigate between the objective tabs", align = "center"),
+                        h5("Use buttons to navigate between the Objective tabs", align = "center"),
                         hr(), br()
                         ),
                
@@ -1119,7 +1153,8 @@ border-color: #FFF;
                                                                DTOutput("viz_output")
                                                                ),
                                               conditionalPanel("input.type == 'Line' | input.type == 'Distribution'",
-                                                               plotlyOutput("fc_plot")
+                                                               plotlyOutput("fc_plot"),
+                                                               actionButton("save_noaa_plot", "Save plot", icon = icon("save"))
                                                                )
                                               )
                                             )
@@ -1218,7 +1253,7 @@ border-color: #FFF;
                                                                ),
                                               conditionalPanel("input.type2 == 'Line' | input.type2 == 'Distribution'",
                                                                plotlyOutput("plot_ecof2"),
-                                                               actionButton("save_plot1", "Save plot", icon = icon("save"))
+                                                               actionButton("save_comm_plot", "Save plot", icon = icon("save"))
                                                                )
                                               )
                                             )
@@ -1329,7 +1364,8 @@ border-color: #FFF;
                                             h3(tags$b("Plot forecast vs observed")),
                                             wellPanel(
                                               plotlyOutput("assess_plot")
-                                            )
+                                            ),
+                                            actionButton("save_assess_plot", "Save plot", icon = icon("save"))
                                      ),
                                    ),
                                    hr(),
@@ -1404,9 +1440,9 @@ border-color: #FFF;
                                      column(8,
                                             # h4("Schematic of Forecast uncertainty"),
                                             wellPanel(
-                                              plotlyOutput("update_plot")
-                                            ),
-                                            p("Answer Q 25")
+                                              plotlyOutput("update_plot"),
+                                              actionButton("save_update_fc_plot", "Save plot", icon = icon("save"))
+                                            )
                                             )
                                      ),
                                    hr(),
@@ -1449,25 +1485,16 @@ border-color: #FFF;
                                             wellPanel(
                                               actionButton('load_fc3', label = div("Load Forecast inputs", icon("download")),
                                                            width = "70%"),
-                                              # br(), br(),
                                               actionButton('run_fc3', label = div("Run Forecast", icon("running")),
                                                            width = "70%"),
-                                              # conditionalPanel("input.load_fc3",
-                                              #                  numericInput('members3', 'No. of members', 20,
-                                              #                               min = 1, max = 30, step = 1),
-                                              #                  # uiOutput("eco_fc_members"),
-                                              #                  selectInput('type3', 'Plot type', plot_types,
-                                              #                              selected = plot_types[2])
-                                              # )
                                               
-                                              
-                                              # )
                                             )
                                      ),
                                      column(8,
                                             h4("New Forecast plot"),
                                             wellPanel(
-                                              plotlyOutput("plot_ecof4")
+                                              plotlyOutput("plot_ecof4"),
+                                              actionButton("save_new_fc_plot", "Save plot", icon = icon("save"))
                                               )
                                             )
                                      ),
@@ -1491,10 +1518,15 @@ border-color: #FFF;
                                    ),
                                    hr(),
                                    fluidRow(
-                                     column(12, 
+                                     column(4, offset = 1, 
                                             h3("The Forecast Cycle"),
-                                            p("We have stepped through each of the steps within the forecast cycle"),
+                                            p(module_text["fc_cycle_end", ]),
                                             ),
+                                     column(5, offset = 1,
+                                            br(), br(), br(),
+                                            img(src = "mod5_viz_v2.png", height = "80%", 
+                                                width = "80%", align = "left")
+                                     )
                                      )
                                    )
                           ),
@@ -1518,7 +1550,7 @@ border-color: #FFF;
                         br(),
                         fluidRow(
                           column(12, 
-                                 h2("Activity C - Scale"),
+                                 h2("Activity C - Scale your model to a new site and generate ecological forecasts"),
                                  p("For Activity C, we want you to make a hypothesis about how you expect your model to work at a different NEON site."),
                                  p("Answer Q 27-29")
                           )
@@ -1553,57 +1585,7 @@ border-color: #FFF;
                           )
                         ),
                         hr(),
-                        #* Generate report buttons ====
-                        fluidRow(
-                          column(4,
-                                 introBox(
-                                   h3("Generate Report"),
-                                   p("This will take the answers you have input into the document and generate a Microsoft Word document (.docx) document with your answers which you can download and make further edits before submitting."),
-                                   actionButton("generate", "Generate Report", icon = icon("file"), # This is the only button that shows up when the app is loaded
-                                                # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-                                   ),
-                                   data.step = 6, data.intro = help_text["finish", 1]
-                                 ),
-                                 
-                                 conditionalPanel(condition = "output.reportbuilt", # This button appears after the report has been generated and is ready for download.
-                                                  downloadButton("download", "Download Report",
-                                                                 # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-                                                  ))
-                          ),
-                          column(4,offset = 2,
-                                 h3("Save your progress"),
-                                 p("You can save your current progress by bookmarking the web address generated from the button below."),
-                                 bookmarkButton(id = "bookmark1"))
                         )
-                 
-               ) #,
-               # 7. Generate Report ----
-               # tabPanel(title = "Generate Report", value = "mtab7",
-               #          # tags$style(type="text/css", "body {padding-top: 65px;}"),
-               #          img(src = "project-eddie-banner-2020_green.png", height = 100, 
-               #              width = 1544, top = 5),
-               #          br(),
-               #          #* Generate report buttons ====
-               #          fluidRow(
-               #            column(6,
-               #                   introBox(
-               #                     h3("Generate Report"),
-               #                     p("This will take the answers you have input into the document and generate a Microsoft Word document (.docx) document with your answers which you can download and make further edits before submitting."),
-               #                     actionButton("generate", "Generate Report", icon = icon("file"), # This is the only button that shows up when the app is loaded
-               #                                  # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-               #                     ),
-               #                     data.step = 6, data.intro = help_text["finish", 1]
-               #                   ),
-               #                   
-               #                   conditionalPanel(condition = "output.reportbuilt", # This button appears after the report has been generated and is ready for download.
-               #                                    downloadButton("download", "Download Report",
-               #                                                   # style = "color: #fff; background-color: #337ab7; border-color: #2e6da4"
-               #                                    ))
-               #                   ),
-               #            ),
-               #          
-               #          )
-               
                ),
     # Tab navigation buttons ----
     br(), hr(),
@@ -1613,13 +1595,13 @@ border-color: #FFF;
                actionButton("prevBtn1", "< Previous", 
                             style = "color: #fff; background-color: #6DB08D; border-color: #00664B; padding:15px; font-size:22px; width:180px") ,
         ),
-        column(6, align = "left",
+        column(3, align = "left",
                actionButton("nextBtn1", "Next >",
                             style = "color: #fff; background-color: #6DB08D; border-color: #00664B; padding:15px; font-size:22px; width:180px")
         )
       ), data.step = 3, data.intro = help_text["tab_nav2", 1], data.position = "right"
     ),
-    h4("Use buttons to navigate between the activity tabs", align = "center"),
+    h4("Use buttons to navigate between the Activity tabs", align = "center"),
     br(), br()
     )
   }
@@ -1834,7 +1816,6 @@ server <- function(input, output, session) {#
   })
   
   # Read in site data ----
-  # neon_DT <- eventReactive(input$view_var, { # view_var
   neon_DT <- reactive({ # view_var
     validate(
       need(input$table01_rows_selected != "",
@@ -1844,12 +1825,15 @@ server <- function(input, output, session) {#
     read_var <- neon_vars$id[which(neon_vars$Short_name == input$view_var)][1]
     units <- neon_vars$units[which(neon_vars$Short_name == input$view_var)][1]
     file <- file.path("data", paste0(siteID, "_", read_var, "_", units, ".csv"))
+    validate(
+      need(file.exists(file), message = "This variable is not available at this site. Please select a different variable or site.")
+    )
     df <- read.csv(file)
     df[, 1] <- as.POSIXct(df[, 1], tz = "UTC")
     df[, -1] <- signif(df[, -1], 4)
     names(df)[ncol(df)] <- read_var
     
-    sel <- tryCatch(df[(selected()$pointNumber+1),,drop=FALSE] , error=function(e){NULL})
+    sel <- tryCatch(df[(selected$sel$pointNumber+1),,drop=FALSE] , error=function(e){NULL})
     
     
     return(list(data = df, sel = sel))
@@ -1942,11 +1926,24 @@ server <- function(input, output, session) {#
 
   })
   
+  selected <- reactiveValues(sel = NULL)
+  
   #selected
-  selected <- reactive({
-    event_data(event = "plotly_selected", source = "A")
+  observe({
+    selected$sel <- event_data(event = "plotly_selected", source = "A")
   })
   
+  # Reset selected point when changing variables - https://stackoverflow.com/questions/42996303/removing-plotly-click-event-data
+  observeEvent(input$view_var, {
+    if(input$view_var > 1) {
+      if(!is.null(selected$sel)) {
+        selected$sel <- NULL
+      }
+      
+    }
+  })
+  
+
   # Output stats ----
   output$out_stats <- renderText({
     
@@ -2332,6 +2329,107 @@ server <- function(input, output, session) {#
     return(gp)
   })
   
+  #* Save plot for annual ====
+  observeEvent(input$save_noaa_plot, {
+    
+    validate(
+      need(input$table01_rows_selected != "",
+           message = "Please select a site on the 'Get Data & Build Model' tab")
+    )
+    validate(
+      need(input$load_fc > 0, "Please load the forecast")
+    )
+    validate(
+      need(!is.null(input$fc_date), "Please select a date")
+    )
+    validate(
+      need(input$members >= 1 & input$members <= membs, paste0("Please select a number of members between 1 and ", membs))
+      
+    )
+    
+    p <- ggplot()
+    
+    
+    l1 <- fc_data()[input$fc_date] #Subset by date
+    
+    var_idx <- which(noaa_dic$display_name == input$fc_var)
+    # Subset by members
+    l2 <- lapply(l1, function(x) {
+      x[x$L1 == noaa_dic$noaa_name[var_idx], 1:(2 + input$members)]
+      
+    })
+    
+    idvars <- colnames(l2[[1]])
+    mlt1 <- reshape::melt(l2, id.vars = idvars)
+    colnames(mlt1)[2] <- "fc_date"
+    
+    if(input$fc_var == "Air temperature") {
+      mlt1[, -c(1, 2)] <- mlt1[, -c(1, 2)] - 273.15
+      ylab <- "Air temperature (\u00B0C)"
+    } else {
+      ylab <- paste0(noaa_dic$display_name[var_idx] , " (", noaa_dic$units[var_idx], ")")
+    }
+    if(input$fc_var == "Relative humidity") {
+      mlt1[, -c(1, 2)] <- mlt1[, -c(1, 2)] * 100
+    }
+    
+    # if(input$type == "line") {
+    # df2$days <- as.numeric(difftime(df2$time, df2$time[1], units = "day"))
+    # mlt <- reshape::melt(df2, id.vars = "time")
+    # }
+    if(input$type == "Distribution") {
+      
+      df3 <- apply(mlt1[, -c(1, 2)], 1, function(x){
+        quantile(x, c(0.025, 0.05, 0.125, 0.5, 0.875, 0.95, 0.975))
+      })
+      df3 <- as.data.frame(t(df3))
+      colnames(df3) <- gsub("%", "", colnames(df3))
+      colnames(df3) <- paste0('p', colnames(df3))
+      df3$time <- mlt1$time
+      df3$fc_date <- mlt1$fc_date
+    }
+    
+    
+    if(input$type == "Line"){
+      
+      mlt2 <- reshape2::melt(mlt1, id.vars = c("time", "fc_date"))
+      p <- p +
+        geom_line(data = mlt2, aes(time, value, group = variable, color = fc_date)) +
+        scale_color_manual(values = pair.cols[2]) +
+        labs(color = "Forecast date")
+    } 
+    if(input$type == "Distribution") {
+      
+      p <- p +
+        geom_ribbon(data = df3, aes(time, ymin = p2.5, ymax = p97.5, fill = fc_date), alpha = 0.8) + 
+        geom_line(data = df3, aes(time, p50, color = fc_date)) +
+        scale_fill_manual(values = pair.cols[1]) +
+        guides(fill = guide_legend(override.aes = list(alpha = c(0.9))),
+               alpha = NULL, title = "Forecast date") +
+        labs(fill = "Forecast date", color = "") +
+        scale_color_manual(values = pair.cols[2])
+    }
+    
+    
+    ##########
+    
+    p <- p + 
+      ylab(ylab) +
+      xlab("Date") +
+      theme_classic(base_size = 34) +
+      theme(panel.background = element_rect(fill = NA, color = 'black'))
+    
+    
+    img_file <- "www/noaa_fc.png"
+    
+    # Save as a png file
+    ggsave(img_file, p,  dpi = 300, width = 580, height = 320, units = "mm")
+    
+    
+    # show("main_content")
+  }, ignoreNULL = FALSE
+  )
+  
   # Input table for q13 ----
   output$q13a_tab <- DT::renderDT(
     q13a_table, selection = "none", 
@@ -2484,18 +2582,12 @@ server <- function(input, output, session) {#
     }
     res <- as.data.frame(res)
     res$time <- npz_inp$Date
+    print(colnames(res))
+    res <- res[, c("time", "Chla", "Zooplankton", "Nutrients")]
     # res[ ,-1] <- ((res[ ,-1] / 1000) * 14) * 100
     
     return(res)
-    
-    ## Old version
-    # out <- deSolve::ode(y = yini, times = times, func = NPZ_model, parms = parms,
-    #            method = "ode45", inputs = inputs)
-    # out <- as.data.frame(out)
-    # out$time <- npz_inp$Date
-    # out <- out[, c("time", "Chlorophyll.Chl_Nratio", "PHYTO", "ZOO")]
-    # colnames(out)[-1] <- c("Chla", "Phytoplankton", "Zooplankton")
-    # return(out)
+
     
   })
   
@@ -2588,6 +2680,52 @@ server <- function(input, output, session) {#
     return(ggplotly(p, dynamicTicks = TRUE))
     
   })
+  
+  #* Save plot for annual ====
+  observeEvent(input$save_mod_run, {
+    
+    validate(
+      need(!is.null(input$table01_rows_selected), "Please select a site on the 'Get Data & Build Model' tab - Objective 1")
+    )
+    validate(
+      need(input$run_mod_ann > 0, "Click 'Run Model'")
+    )
+    
+    # Load Chl-a observations
+    read_var <- neon_vars$id[which(neon_vars$Short_name == "Chlorophyll-a")]
+    units <- neon_vars$units[which(neon_vars$Short_name == "Chlorophyll-a")]
+    file <- file.path("data", paste0(siteID, "_", read_var, "_", units, ".csv"))
+    if(file.exists(file)) {
+      chla <- read.csv(file)
+      chla[, 1] <- as.POSIXct(chla[, 1], tz = "UTC")
+      chla <- chla[(chla[, 1] >= mod_run1()[1, 1] &
+                      chla[, 1] <= mod_run1()[nrow(mod_run1()), 1]), ]
+    }
+    
+    xlims <- range(mod_run1()[, 1])
+    # ylims <- range(chla[, 2], na.rm = TRUE)
+    
+    validate(
+      need(input$run_mod_ann > 0, "Please run the model")
+    )
+    p <- ggplot() +
+      geom_line(data = mod_run1(), aes_string(names(mod_run1())[1], names(mod_run1())[2], color = shQuote("Model"))) +
+      ylab("Chlorophyll-a (μg/L)") +
+      xlab("") +
+      {if(input$add_obs) geom_point(data = chla, aes_string(names(chla)[1], names(chla)[2], color = shQuote("Obs")), size = 4)} +
+      # coord_cartesian(xlim = xlims, ylim = ylims) +
+      scale_color_manual(values = cols[1:2]) +
+      theme_classic(base_size = 34) +
+      theme(panel.background = element_rect(fill = NA, color = 'black'))
+    
+    img_file <- "www/mod_run_2019.png"
+    
+    # Save as a png file
+    ggsave(img_file, p,  dpi = 300, width = 580, height = 320, units = "mm")
+    
+    # show("main_content")
+  }, ignoreNULL = FALSE
+  )
   
   #** Save parameters fro each scenario
   output$save_par <- renderDT(par_save(), selection = "single",
@@ -2845,7 +2983,7 @@ server <- function(input, output, session) {#
   })
   
   #* Save plot for communication ====
-  observeEvent(input$save_plot1, {
+  observeEvent(input$save_comm_plot, {
     
     
     validate(
@@ -2954,7 +3092,7 @@ server <- function(input, output, session) {#
         need(input$run_fc2 > 0, "Click 'Run Forecast'")
       )
       validate(
-        need(input$save_plot1 > 0, "Click 'Save plot'")
+        need(input$save_comm_plot > 0, "Click 'Save plot'")
       )
       
       list(src = img_file,
@@ -2962,6 +3100,7 @@ server <- function(input, output, session) {#
            # height = "100%", 
            width = "100%")
     }, deleteFile = FALSE)
+
     # show("main_content")
   }, ignoreNULL = FALSE)
   
@@ -3003,32 +3142,19 @@ server <- function(input, output, session) {#
       colnames(df3)[-1] <- paste0('p', colnames(df3)[-1])
       # df3$hours <- df2$hours
       df2 <- df3
-    # } else {
-    #   df2 <- sub
-    #   df2$L1 <- paste0("ens", formatC(df2$L1, width = 2, format = "d", flag = "0"))
-    # }
+
     
     txt <- data.frame(x = (new_obs[nrow(new_obs), 1] + 2.5), y = (max(new_obs[, 2], na.rm = TRUE) + 6), label = "One week later")
     
     p <- ggplot()
-    # if(input$type2 == "Line"){
-    #   p <- p +
-    #     geom_line(data = df2, aes(time, value, color = L1)) +
-    #     scale_color_manual(values = c(rep("black", input$members2), cols[1:2])) +
-    #     guides(color = FALSE)
-    # } 
-    # if(input$type2 == "Distribution") {
-      p <- p +
-        geom_ribbon(data = df2, aes(time, ymin = p2.5, ymax = p97.5, fill = "95th"),
-                    alpha = 0.8) +
-        # geom_ribbon(data = df2, aes(time, ymin = p12.5, ymax = p87.5, fill = "75th"),
-        # alpha = 0.8) +
-        geom_line(data = df2, aes(time, p50, color = "Median")) +
-        scale_fill_manual(values = pair.cols[3]) +
-        # scale_color_manual(values = pair.cols[4]) +
-        guides(fill = guide_legend(override.aes = list(alpha = c(0.8))))
+    
+    p <- p +
+      geom_ribbon(data = df2, aes(time, ymin = p2.5, ymax = p97.5, fill = "95th"),
+                  alpha = 0.8) +
+      geom_line(data = df2, aes(time, p50, color = "Median")) +
+      scale_fill_manual(values = pair.cols[3]) +
+      guides(fill = guide_legend(override.aes = list(alpha = c(0.8))))
         
-    # }
     p <- p + 
       geom_point(data = chla_obs, aes_string(names(chla_obs)[1], names(chla_obs)[2], color = shQuote("Obs"))) +
       {if(input$add_newobs) geom_point(data = new_obs, aes_string(names(new_obs)[1], names(new_obs)[2], color = shQuote("New obs")))} +
@@ -3116,6 +3242,108 @@ server <- function(input, output, session) {#
     return(gp)
     
     })
+  
+  #* Save plot for assessment plot ====
+  observeEvent(input$save_assess_plot, {
+    
+    validate(
+      need(input$assess_fc3 > 0, message = paste0("Click 'Assess'"))
+    )
+    validate(
+      need(input$members2 >= 1 & input$members2 <= 30,
+           message = paste0("The number of members must be between 1 and 30"))
+    )
+    validate(
+      need(!is.null(input$table01_rows_selected), "Please select a site on the 'Get Data & Build Model' tab - Objective 1")
+    )
+    
+    # Load Chl-a observations
+    read_var <- neon_vars$id[which(neon_vars$Short_name == "Chlorophyll-a")]
+    units <- neon_vars$units[which(neon_vars$Short_name == "Chlorophyll-a")]
+    file <- file.path("data", paste0(siteID, "_", read_var, "_", units, ".csv"))
+    if(file.exists(file)) {
+      chla <- read.csv(file)
+      chla[, 1] <- as.Date(chla[, 1], tz = "UTC")
+    }
+    chla_obs <- chla[(chla[, 1] >= as.Date((driv_fc()[1, 1] - (7)))) &
+                       chla[, 1] <= as.Date(driv_fc()[1, 1]), ]
+    new_obs <- chla[chla[, 1] > as.Date((driv_fc()[1, 1])) &
+                      chla[, 1] <= (as.Date(driv_fc()[1, 1]) + 7), ]
+    
+    
+    
+    sub <- driv_fc()[as.numeric(driv_fc()$L1) <= input$members2, ]
+    # if(input$type2 == "Distribution") {
+    
+    df3 <- plyr::ddply(sub, "time", function(x) {
+      quantile(x$value, c(0.025, 0.05, 0.125, 0.5, 0.875, 0.95, 0.975))
+    })
+    # df3 <- as.data.frame(t(df3))
+    colnames(df3)[-1] <- gsub("%", "", colnames(df3)[-1])
+    colnames(df3)[-1] <- paste0('p', colnames(df3)[-1])
+    # df3$hours <- df2$hours
+    df2 <- df3
+    
+    
+    txt <- data.frame(x = (new_obs[nrow(new_obs), 1] + 7), y = (max(new_obs[, 2], na.rm = TRUE) + 3), label = "One week later")
+    
+    p1 <- ggplot()
+    
+    p1 <- p1 +
+      geom_ribbon(data = df2, aes(time, ymin = p2.5, ymax = p97.5, fill = "95th"),
+                  alpha = 0.8) +
+      geom_line(data = df2, aes(time, p50, color = "Median")) +
+      scale_fill_manual(values = pair.cols[3]) +
+      guides(fill = guide_legend(override.aes = list(alpha = c(0.8))))
+    
+    p1 <- p1 + 
+      geom_point(data = chla_obs, aes_string(names(chla_obs)[1], names(chla_obs)[2], color = shQuote("Obs")), size = 4) +
+      {if(input$add_newobs) geom_point(data = new_obs, aes_string(names(new_obs)[1], names(new_obs)[2], color = shQuote("New obs")), size = 4)} +
+      {if(input$add_newobs) scale_color_manual(values = c("Median" = pair.cols[4], "Obs" = cols[1], "New obs" = cols[2]))} +
+      {if(!input$add_newobs) scale_color_manual(values = c("Median" = pair.cols[4], "Obs" = cols[1]))} +
+      geom_vline(xintercept = (df2[1, 1]), linetype = "dashed") +
+      geom_vline(xintercept = (df2[1, 1] + 7), linetype = "dotted") +
+      geom_text(data = txt, aes(x, y, label = label), size = 8) +
+      ylab("Chlorophyll-a (μg/L)") +
+      xlab("Date") +
+      theme_classic(base_size = 34) +
+      theme(panel.background = element_rect(fill = NA, color = 'black')) +
+      labs(color = "", fill = "")
+
+    df <- as_plot()
+    origin <- data.frame(x = 0, y = 0) # included to ensure 0,0 is in the plot
+    
+    lm1 <- lm(df[, 3] ~ df[, 2])
+    r2 <- round(summary(lm1)$r.squared, 2)
+    r2_txt <- paste0("r2 = ", r2)# bquote(r^2 ~ "=" ~ .(r2))    
+    
+    txt <- data.frame(x = 2, y = (max(df[, 2], na.rm = TRUE) - 1))
+    print(r2_txt)
+    
+    txt2 <- data.frame(y = 0, x = 1, label = "1:1 line")
+    
+    
+    p2 <- ggplot(df, aes_string(names(df)[2], names(df)[3])) +
+      geom_abline(intercept = 0, slope = 1) +
+      geom_point(data = origin, aes(x, y), alpha = 0) +
+      geom_point(size = 4) +
+      geom_text(data = txt, aes(x, y), label = r2_txt, size = 12) +
+      geom_text(data = txt2, aes(x, y, label = label), size = 12) +
+      xlab("Observations (Chl-a)") +
+      ylab("Forecast values (Chl-a)") +
+      theme_classic(base_size = 34) +
+      theme(panel.background = element_rect(fill = NA, color = 'black')) +
+      labs(color = "", fill = "")
+    
+    p <- ggpubr::ggarrange(p1, p2, nrow = 1)
+    img_file <- "www/assess_fc.png"
+    
+    # Save as a png file
+    ggsave(img_file, p,  dpi = 300, width = 580, height = 320, units = "mm")
+    
+    # show("main_content")
+  }, ignoreNULL = FALSE
+  )
   
   #* Update model ====
   fc_update <- eventReactive(input$update_fc2,{
@@ -3282,6 +3510,88 @@ server <- function(input, output, session) {#
     return(gp)
   })
   
+  
+  #* Save plot for updated forecast ====
+  observeEvent(input$save_update_fc_plot, { #save_new_fc_plot
+    
+    validate(
+      need(input$table01_rows_selected != "",
+           message = "Please select a site in Objective 1.")
+    ) 
+    
+    # Load Chl-a observations
+    read_var <- neon_vars$id[which(neon_vars$Short_name == "Chlorophyll-a")]
+    units <- neon_vars$units[which(neon_vars$Short_name == "Chlorophyll-a")]
+    file <- file.path("data", paste0(siteID, "_", read_var, "_", units, ".csv"))
+    if(file.exists(file)) {
+      chla <- read.csv(file)
+      chla[, 1] <- as.Date(chla[, 1], tz = "UTC")
+    }
+    chla_obs <- chla[(chla[, 1] >= as.Date((driv_fc()[1, 1] - (7)))) &
+                       chla[, 1] < as.Date(driv_fc()[1, 1]), ]
+    new_obs <- chla[chla[, 1] >= as.Date((driv_fc()[1, 1])) &
+                      chla[, 1] <= (as.Date(driv_fc()[1, 1]) + 7), ]
+    
+    sub <- driv_fc() #[as.numeric(driv_fc()$L1) <= input$members2, ]
+    
+    df3 <- plyr::ddply(sub, "time", function(x) {
+      quantile(x$value, c(0.025, 0.05, 0.125, 0.5, 0.875, 0.95, 0.975))
+    })
+    colnames(df3)[-1] <- gsub("%", "", colnames(df3)[-1])
+    colnames(df3)[-1] <- paste0('p', colnames(df3)[-1])
+    
+    
+    p <- ggplot()
+    p <- p +
+      geom_ribbon(data = df3, aes(time, ymin = p2.5, ymax = p97.5, fill = "Original"),
+                  alpha = 0.8) #+
+    geom_line(data = df3, aes(time, p50, color = "Median - original")) #+
+    # scale_fill_manual(values = l.cols[2]) +
+    # guides(fill = guide_legend(override.aes = list(alpha = c(0.8))))
+    
+    if(input$update_fc2 > 0) {
+      # Updated model
+      sub <- fc_update()
+      df4 <- plyr::ddply(sub, "time", function(x) {
+        quantile(x$value, c(0.025, 0.05, 0.125, 0.5, 0.875, 0.95, 0.975))
+      })
+      colnames(df4)[-1] <- gsub("%", "", colnames(df4)[-1])
+      colnames(df4)[-1] <- paste0('p', colnames(df4)[-1])
+      
+      p <- p +
+        geom_ribbon(data = df4, aes(time, ymin = p2.5, ymax = p97.5, fill = "Updated"),
+                    alpha = 0.8) +
+        geom_line(data = df4, aes(time, p50, color = "Median - updated")) +
+        scale_fill_manual(values = c("Original" = pair.cols[3], "Updated" = pair.cols[5])) +
+        guides(fill = guide_legend(override.aes = list(alpha = c(0.8, 0.8))))
+    } else {
+      p <- p +
+        scale_fill_manual(values = c("Original" = pair.cols[3]))
+    }
+    
+    
+    
+    p <- p + 
+      geom_point(data = chla_obs, aes_string(names(chla_obs)[1], names(chla_obs)[2], color = shQuote("Obs")), size = 4) +
+      geom_point(data = new_obs, aes_string(names(new_obs)[1], names(new_obs)[2], color = shQuote("New obs")), size = 4) +
+      geom_vline(xintercept = driv_fc()[1, 1], linetype = "dashed") +
+      ylab("Chlorophyll-a") +
+      xlab("Date") +
+      {if(input$update_fc2 > 0)         scale_color_manual(values = c("Obs" = cols[1], "New obs" = cols[2], "Median - original" = pair.cols[4], "Median - updated" = pair.cols[6]))} +
+      {if(input$update_fc2 == 0)         scale_color_manual(values = c("Obs" = cols[1], "New obs" = cols[2], "Median - original" = pair.cols[4]))} +
+      theme_classic(base_size = 34) +
+      theme(panel.background = element_rect(fill = NA, color = 'black')) +
+      labs(color = "", fill = "") 
+    
+    img_file <- "www/fc_update.png"
+    
+    # Save as a png file
+    ggsave(img_file, p,  dpi = 300, width = 580, height = 320, units = "mm")
+    
+    # show("main_content")
+  }, ignoreNULL = FALSE
+  )
+  
   #* New Forecast ====
   npz_fc_data2 <- reactive({
     if(input$load_fc3) {
@@ -3313,6 +3623,8 @@ server <- function(input, output, session) {#
       return(npz_inp_list)
     }
   })
+  
+  
   #** Generate New Forecast ----
   new_fc <- eventReactive(input$run_fc3, {
     
@@ -3380,12 +3692,7 @@ server <- function(input, output, session) {#
   })
   
   output$plot_ecof4 <- renderPlotly({
-    
 
-    # validate(
-    #   need(input$members3 >= 1 & input$members3 <= 30,
-    #        message = paste0("The number of members must be between 1 and 30"))
-    # )
     validate(
       need(!is.null(input$table01_rows_selected), "Please select a site on the 'Get Data & Build Model' tab - Objective 1")
     )
@@ -3465,6 +3772,87 @@ server <- function(input, output, session) {#
     return(gp)
     
   })
+  
+  #* Save plot for new  forecast ====
+  observeEvent(input$save_new_fc_plot, { 
+    
+    validate(
+      need(!is.null(input$table01_rows_selected), "Please select a site on the 'Get Data & Build Model' tab - Objective 1")
+    )
+    
+    # Load Chl-a observations
+    read_var <- neon_vars$id[which(neon_vars$Short_name == "Chlorophyll-a")]
+    units <- neon_vars$units[which(neon_vars$Short_name == "Chlorophyll-a")]
+    file <- file.path("data", paste0(siteID, "_", read_var, "_", units, ".csv"))
+    if(file.exists(file)) {
+      chla <- read.csv(file)
+      chla[, 1] <- as.Date(chla[, 1], tz = "UTC")
+    }
+    chla_obs <- chla[(chla[, 1] >= as.Date((driv_fc()[1, 1] - (7)))) &
+                       chla[, 1] < as.Date((driv_fc()[1, 1] + 7)), ]
+    
+    
+    # Make old forecast 
+    sub <- driv_fc() #[as.numeric(driv_fc()$L1) <= input$members2, ]
+    
+    df3 <- plyr::ddply(sub, "time", function(x) {
+      quantile(x$value, c(0.025, 0.05, 0.125, 0.5, 0.875, 0.95, 0.975))
+    })
+    colnames(df3)[-1] <- gsub("%", "", colnames(df3)[-1])
+    colnames(df3)[-1] <- paste0('p', colnames(df3)[-1])
+    df3$fc_date <- as.character(df3[1, 1])
+    
+    
+    p <- ggplot()
+    p <- p +
+      geom_ribbon(data = df3, aes(time, ymin = p2.5, ymax = p97.5, fill = fc_date),
+                  alpha = 0.8) +
+      geom_line(data = df3, aes(time, p50, color = "Median"))
+    
+    
+    if(input$run_fc3 > 0) {
+      sub <- new_fc()[as.numeric(new_fc()$L1) <= input$members2, ]
+      
+      # if(input$type3 == "Distribution") {
+      
+      df3 <- plyr::ddply(sub, "time", function(x) {
+        quantile(x$value, c(0.025, 0.05, 0.125, 0.5, 0.875, 0.95, 0.975))
+      })
+      # df3 <- as.data.frame(t(df3))
+      colnames(df3)[-1] <- gsub("%", "", colnames(df3)[-1])
+      colnames(df3)[-1] <- paste0('p', colnames(df3)[-1])
+      df3$fc_date <- as.character(df3[1, 1])
+      df2 <- df3
+      
+      p <- p +
+        geom_ribbon(data = df2, aes(time, ymin = p2.5, ymax = p97.5, fill = fc_date),
+                    alpha = 0.8) +
+        # geom_ribbon(data = df2, aes(time, ymin = p12.5, ymax = p87.5, fill = "75th"),
+        # alpha = 0.8) +
+        geom_line(data = df2, aes(time, p50, color = "Median")) +
+        geom_vline(xintercept = (new_fc()[1, 1]), linetype = "dashed")
+    }
+    
+    # }
+    p <- p + 
+      geom_point(data = chla_obs, aes_string(names(chla_obs)[1], names(chla_obs)[2], color = shQuote("Obs")), size = 4) +
+      ylab("Chlorophyll-a (μg/L)") +
+      xlab("Date") +
+      theme_classic(base_size = 34) +
+      theme(panel.background = element_rect(fill = NA, color = 'black')) +
+      labs(color = "", fill = "") +
+      scale_fill_manual(values = c("2020-09-25" = pair.cols[3], "2020-10-02" = pair.cols[7])) +
+      guides(fill = guide_legend(override.aes = list(alpha = c(0.8)))) +
+      scale_color_manual(values = c("Median" = "black", cols[1:2]))
+    
+    img_file <- "www/new_fc.png"
+    
+    # Save as a png file
+    ggsave(img_file, p,  dpi = 300, width = 580, height = 320, units = "mm")
+    
+    # show("main_content")
+  }, ignoreNULL = FALSE
+  )
 
   
   #** Render Report ----
@@ -3491,6 +3879,7 @@ server <- function(input, output, session) {#
                    a4b = input$q4b,
                    a4c = input$q4c,
                    a4d = input$q4d,
+                   a4e = input$q4e,
                    a5a = input$q5a,
                    a5b = input$q5b,
                    a5c = input$q5c,
@@ -3548,9 +3937,14 @@ server <- function(input, output, session) {#
                    a26c = input$q26c,
                    a27 = input$q27,
                    save_pars = par_file,
-                   comm_plot = "www/comm_fc_plot.png",
                    pheno_file = pheno_file,
-                   site_html = "data/site.html"
+                   site_html = "data/site.html",
+                   mod_2019_png = "www/mod_run_2019.png",
+                   noaa_plot = "www/noaa_fc.png",
+                   comm_plot = "www/comm_fc_plot.png",
+                   assess_plot = "www/assess_fc.png",
+                   update_plot = "www/fc_update.png",
+                   next_fc_plot = "www/new_fc.png"
     )
     
     
@@ -3729,10 +4123,10 @@ server <- function(input, output, session) {#
   })
   
   # Read values from state$values when we restore
-  onRestore(function(state) {
-    updateTabsetPanel(session, "maintab",
-                      selected = "mtab4")
-  })
+  # onRestore(function(state) {
+  #   updateTabsetPanel(session, "maintab",
+  #                     selected = "mtab4")
+  # })
   
   onRestored(function(state) {
     
@@ -3740,6 +4134,57 @@ server <- function(input, output, session) {#
     
   })
 
+  # Checklist for user inputs
+  output$check_list <- renderUI({
+    chk_list()
+  })
+  
+  chk_list <- reactive({
+    out_chk <- c(
+      if(input$name == "") {"Name"},
+      if(input$id_number == "") "ID number",
+      if(input$q1 == "") "Q. 1",
+      if(input$q2 == "") "Q. 2",
+      if(input$q3 == "") "Q. 3",
+      if(input$q4a == "" | input$q4b == "" | input$q4c == "" |input$q4d == "" |input$q4e == "") "Q. 4",
+      if(input$q5a == "" | input$q5b == "" | input$q5c == "" | input$q5d == "" | input$q5e == "" | input$q5f == "") "Q. 5",
+      if(is.null(input$q6a_mean) | is.null(input$q6a_max) | is.null(input$q6b_mean) | is.null(input$q6b_max) | is.null(input$q6c_mean) | is.null(input$q6c_max) | is.null(input$q6d_mean) | is.null(input$q6d_max) | is.null(input$q6e_mean) | is.null(input$q6e_max)) "Q. 6",
+      if(is.null(input$q7a) | is.null(input$q7b) | is.null(input$q7c) | is.null(input$q7d)) "Q. 7",
+      if(input$q8 == "") "Q. 8",
+      if(input$q9a == "Negative" & input$q9b == "Negative" & input$q9c == "Negative") "Q. 9",
+      if(length(input$rank_list_2) == 0 | length(input$rank_list_3) == 0) "Q. 10",
+      if(input$q11a == "Negative" & input$q11b == "Negative" & input$q11c == "Negative") "Q. 11",
+      if(input$q13a == "" | input$q13b == "") "Q. 13",
+      if(input$q14a == "" | input$q14b == "") "Q. 14",
+      if(input$save_params == 0) "Q. 15 Save table of parameters",
+      if(input$save_mod_run == 0) "Q. 15 Save plot of model run",
+      if(input$q16 == "") "Q. 16",
+      if(input$q17 == "") "Q. 17",
+      if(input$save_noaa_plot == 0) "Q. 17 Save plot of NOAA weather forecast",
+      if(input$q18a == "" | input$q18b == "" | input$q18c == "") "Q. 18",
+      if(input$q19 == "") "Q. 19",
+      if(input$q20 == "") "Q. 20",
+      if(input$save_comm_plot == 0) "Q. 19 Save plot of ecological forecast",
+      if(input$q21 == "") "Q. 21",
+      if(input$q22 == "") "Q. 22",
+      if(input$save_assess_plot == 0) "Q. 22 Save plot of assessment of the ecological forecast",
+      if(input$q23 == "") "Q. 23",
+      if(input$save_update_fc_plot == 0) "Q. 23 Save plot of updated ecological forecast",
+      if(input$q24 == "") "Q. 24",
+      if(input$save_new_fc_plot == 0) "Q. 23 Save plot of new ecological forecast",
+      if(input$q25 == "") "Q. 25",
+      if(input$q26a == "" | input$q26b == "" | input$q26c == "") "Q. 26",
+      if(input$q27 == "") "Q. 27"
+    )
+    HTML(
+      paste(
+        out_chk,
+        collapse = "<br/>"
+      )
+    )
+    
+
+  })
   
 }
 # enableBookmarking("url") # Needed for bookmarking currently not working
