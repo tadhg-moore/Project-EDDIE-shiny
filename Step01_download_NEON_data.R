@@ -2,7 +2,7 @@
 # install.packages("duckdb_r_src.tar.gz", repo = NULL)
 # /groups/rqthomas_lab/neonstore
 # remotes::install_github("cwida/duckdb/tools/rpkg", build = FALSE)
-# remotes::install_github("cboettig/neonstore")
+remotes::install_github("cboettig/neonstore")
 # Sys.setenv("NEONSTORE_HOME" = "/groups/rqthomas_lab/neonstore3")
 
 # Sys.setenv("NEONSTORE_HOME" = "/groups/rqthomas_lab/neonstore2")
@@ -10,8 +10,8 @@
 # prod <- neonstore::neon_index()$product[unlist(success)]
 # unique(prod)
 # dir.create("neonstore")
-Sys.setenv("NEONSTORE_HOME" = "/groups/rqthomas_lab/neonstore4")
-Sys.setenv("NEONSTORE_DB" = "/home/tadhgm/Project-EDDIE-shiny/neonstore/")
+Sys.setenv("NEONSTORE_HOME" = "C:/Users/tadhgm/Desktop/neonstore")
+Sys.setenv("NEONSTORE_DB" = "C:/Users/tadhgm/Desktop/neonstore")
 success <- lapply(neonstore::neon_index()$path, Sys.chmod, "644")
 Sys.setenv("NEON_TOKEN" = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRwczovL2RhdGEubmVvbnNjaWVuY2Uub3JnL2FwaS92MC8iLCJzdWIiOiJ0YWRoZ21AdnQuZWR1Iiwic2NvcGUiOiJyYXRlOnB1YmxpYyIsImlzcyI6Imh0dHBzOi8vZGF0YS5uZW9uc2NpZW5jZS5vcmcvIiwiZXhwIjoxNzYwOTk3MDAxLCJpYXQiOjE2MDMzMTcwMDEsImVtYWlsIjoidGFkaGdtQHZ0LmVkdSJ9.Vzz0vAyZQYQfLbZkvy7jZc15bRwgOU6XoRBTbGgy6tf4uYssPnHhkOzVzJuBNALckonhXJsvla1nfLh_bjsvvw")
 
@@ -35,17 +35,16 @@ Sys.setenv("NEON_TOKEN" = "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJhdWQiOiJodHRw
 
 # library(tidyverse)
 
-products <- c(#"DP1.20093.001",
-              "DP1.20288.001" # Failed!
-              # "DP1.00002.001",
-              # "DP1.20219.001", "DP1.20033.001", "DP1.20264.001",
-              # "DP1.20048.001", "DP1.20252.001", "DP1.20046.001",
-              # "DP4.00130.001", "DP1.20053.001", "DP1.20264.001",
-              # "DP1.20097.001", "DP1.20261.001", "DP1.20042.001",
-              # "DP1.00006.001"
+products <- c("DP1.20093.001",
+              "DP1.20288.001", # Failed!
+              "DP1.00002.001",
+              "DP1.20219.001", "DP1.20033.001", "DP1.20264.001",
+              "DP1.20048.001", "DP1.20252.001", "DP1.20046.001",
+              "DP4.00130.001", "DP1.20053.001", "DP1.20264.001",
+              "DP1.20097.001", "DP1.20261.001", "DP1.20042.001",
+              "DP1.00006.001"
   )
-sites <- c("BARC", "TOOK")
-sites <- c("CRAM", "SUGG", "PRPO", "LIRO", "PRLA")
+sites <- c("BARC", "CRAM", "SUGG", "PRPO", "LIRO", "PRLA")
 
 # product <-'DP1.20252.001' # "DP1.20033.001"
 
